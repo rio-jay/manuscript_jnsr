@@ -1,0 +1,134 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+#libraries used in this notebook
+library(gmodels)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(tidyverse)
+library(ggpubr)
+library(here)
+#reads in the dataframe
+dat <-read.csv(here("data.csv")) #reads in csv data file
+set_here()
+factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
+maturity_dat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+maturity_dat$genotype <- factor(maturity_dat$genotype, levels =c("control", "unc-33(mn407)", "unc-33(e204)" ))
+
+```
+
+```{r}
+#organization of the data
+#subset the columns that will be used in analysis and renames columns to more readable names
+maturity_dat_red <- select("maturity_dat",id, genotype, avg_neurite_auto_count_red, avg_soma_red_auto, avg_cell_auto_count_red)
+
+maturity_dat_red
+maturity_dat_red <- maturity_dat_red %>% 
+  rename(Neurite = avg_neurite_auto_count_red,
+         Soma = avg_soma_red_auto,
+         Cell = avg_cell_auto_count_red
+    )
+maturity_dat_red
+#now for the yellow data
+maturity_dat_yellow <- maturity_dat %>%  select(id, genotype, avg_neurite_auto_count_yellow, avg_soma_yellow_auto, avg_cell_auto_count_yellow)
+maturity_dat_yellow <-maturity_dat_yellow %>% 
+  rename(Neurite = avg_neurite_auto_count_yellow,
+         Soma = avg_soma_yellow_auto,
+         Cell = avg_cell_auto_count_yellow
+    )
+#pivots the location data for the observations longer. Stores the data values under values column and the old column names under a new column named location.
+maturity_dat_red <-maturity_dat_red %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+maturity_dat_yellow <-maturity_dat_yellow %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+#reorders the location factors to aide in graphical representation of data
+maturity_dat_red$location <- factor(maturity_dat_red$location,
+                                    levels = c("Neurite", "Soma", "Cell"))
+
+maturity_dat_yellow$location <- factor(maturity_dat_yellow$location,
+                                    levels = c("Neurite", "Soma", "Cell"))
+
+```
+
+
+```{r}
+#position jitter function
+posn_j <- position_jitter(width=.2)
+#dot plot of the red data in the locations of the neuron faceted
+maturity_red_plot <- ggplot(data=maturity_dat_red, aes(x=genotype, y=value, fill=location)) +
+  geom_violin(aes(x=genotype, y=value, fill=location),
+              fill = "red",
+              alpha = .3,
+              draw_quantiles = c(.5))+
+  facet_wrap(vars(location))+ #facets the data to show the location in the cell of the red AG's
+  geom_point(alpha = 0.6,
+             position =posn_j)+ #creates a dotplot of the data
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
+  fig_one_theme+ #loads theme elements from other figures in the manuscript
+  coord_cartesian(ylim = c(0,20))+ #creates the limits of the graph
+  theme(legend.position = "none")+ #gets rid of legend
+  labs(y = "AL's per AIY Neuron")+
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), #this will be the significance for first facet
+              annotations = c("7.32e-05"))+
+  #geom_signif(stat="identity"
+              #data = data.frame(x=c(.85,.85),
+                               # xend=c(2.15,3.15),
+                               # y=c(13,15),
+                                #annotation=c(""))
+              )
+
+maturity_red_plot
+
+#dot plot of the red data in the locations of the neuron faceted
+maturity_yellow_plot <- ggplot(data=maturity_dat_yellow, aes(x=genotype, y=value, fill=location)) +
+  geom_violin(aes(x=genotype, y=value, fill=location),
+              fill = "yellow",
+              alpha = .3,
+              draw_quantiles = c(.5))+
+  facet_wrap(vars(location))+ #facets the data to show the location in the cell of the red AG's
+  geom_point(alpha = 0.6,
+             position =posn_j)+ #creates a dotplot of the data
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
+  fig_one_theme+ #loads theme elements from other figures in the manuscript
+  coord_cartesian(ylim = c(0,20))+ #creates the limits of the graph
+  theme(legend.position = "none")+
+  labs(y = "AG's per AIY Neuron")
+
+
+maturity_yellow_plot
+
+    
+```
+```{r}
+#experimental plot with both the yellow and red overlaid on one graph
+compound_plot <- ggplot()+
+    geom_violin(data=maturity_dat_red, aes(x=genotype, y=value, fill=location),
+              fill = "red",
+              alpha = .5)+
+  geom_violin(data=maturity_dat_yellow, aes(x=genotype, y=value, fill=location),
+              fill = "yellow",
+              alpha = .3)+
+
+  facet_wrap(~location)
+compound_plot
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

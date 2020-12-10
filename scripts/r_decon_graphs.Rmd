@@ -1,0 +1,381 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+```{r}
+library(ggplot2)
+library(psych)
+library(car)
+library(AICcmodavg)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+
+#opens files for the separate temperature factors as well as one containing both and passes strings as factors
+df20 <- read.csv("data.csv", header=TRUE, sep=",", stringsAsFactors = TRUE)
+df25 <- read.csv("data25C.csv", header=TRUE, sep=",", stringsAsFactors = TRUE)
+dfboth <- read.csv("databoth.csv", header=TRUE, sep=",", stringsAsFactors = TRUE)
+is.data.frame(df20)
+sapply(df20, FUN=typeof)
+levels(df20$genotype)
+
+```
+
+```{r}
+#this code is an attempt to write out the asssumptions for anova to determine if the data is parametric
+two.way <-lm(avg_area_red_neurite ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_area_red_neurite ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+plot(two.way,2) #normality
+aov_residuals<-residuals(object=two.way)
+shap.test <-shapiro.test(x=aov_residuals) #test for normality. If p<.05 then the data is not normal #tests that the data is not normally distributed #saves p-value so that it can placed in if then statement for kruskal.test
+shap.test
+print(two.way)
+```
+
+
+```{r}
+#two way anovas
+two.way <-lm(avg_area_red_neurite ~ genotype * temperature, data= dfboth)
+two.way.model <- Anova(two.way,type="III")
+two.way.model
+plot(two.way.model)#variance
+lev.test<-leveneTest(avg_area_red_neurite ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+par(mfrow=c(2,2))
+plot(two.way.model)
+par(mfrow=c(1,1))
+
+two.way <-lm(avg_area_red_soma ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_area_red_soma ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_area_red_cell ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_area_red_cell ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count_red ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count_red ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count_yellow ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count_yellow ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_neurite_auto_count_total ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_neurite_auto_count_total ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_neurite_auto_count_red ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_neurite_auto_count_red ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_neurite_auto_count_yellow ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_neurite_auto_count_yellow ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_soma_auto_count_total ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_soma_auto_count_total ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_soma_red_auto ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_soma_red_auto ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_soma_yellow_auto ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_soma_yellow_auto ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+
+```
+
+```{r}
+#two way anovas
+two.way <-lm(avg_area_red_cell ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_area_red_cell ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count_red ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count_red ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count_yellow ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count_yellow ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count ~ genotype * temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+```
+
+
+
+```{r}
+#Maturity Red 20 in Cell
+
+#the bars subset the data to be analyzed
+bar1 <- subset(df20, genotype == "control", select = c("genotype", "avg_cell_auto_count_red")) 
+bar2 <- subset(df20, genotype == "daf-2(e1370)",  select = c("genotype", "avg_cell_auto_count_red"))
+bar3 <- subset(df20, genotype == "unc-33(mn407)", select = c("genotype", "avg_cell_auto_count_red"))
+bar4 <- subset(df20, genotype == "unc-33(e204)", select = c("genotype", "avg_cell_auto_count_red"))
+
+#gives statistical calculations for subsetted data
+a <- describe( bar1 $avg_cell_auto_count_red) 
+b <- describe( bar2$avg_cell_auto_count_red)
+c <- describe( bar3$avg_cell_auto_count_red)
+d <- describe( bar4$avg_cell_auto_count_red)
+
+#creates a dataframe of mean and standard deviations of the data
+plotdata <- data.frame(Genotype = c("contol", "daf-2(e1370", "unc-33(mn407)", "unc-33(e204)"),
+                       Means = c(a$mean, b$mean, c$mean, d$mean),
+                       Sdevs= c(a$sd, b$sd, c$sd, d$sd))
+plotdata
+
+#passes the catergorical varaibles as factors so that they can be correctly ordered 
+plotdata$Genotype <- factor(plotdata$Genotype, levels = c("contol", "daf-2(e1370", "unc-33(mn407)", "unc-33(e204)"))
+str(plotdata)
+
+
+barchart <- ggplot(data=plotdata, aes(x=Genotype, y=Means)) +
+  geom_bar(stat="identity",) +
+  geom_errorbar(aes(ymin=Means-Sdevs, ymax=Means+Sdevs), width =.2)+
+  coord_cartesian(ylim=c(0,10))+ #defines the boundaries shown in the graph
+  labs(y="Red AV per Cell")
+  
+barchart
+
+#displays a histogram of the data set.THIS MUST BE NORMAL TO SHOW EFFICACY OF ANOVA
+hist(df20$avg_cell_auto_count_red, breaks = 11) #break defines the binwidth for the histogram model
+
+#anova test statistic
+one.way <- aov(avg_cell_auto_count_red ~ genotype, data = df20)
+summary(one.way)
+TukeyHSD(one.way)
+plot(one.way,1) #variance
+lev.test<-leveneTest(one.way) #tests whether the variance across groups is statistically significant
+lev.test
+plot(one.way,2) #normality
+aov_residuals<-residuals(object=one.way)
+shap.test <-shapiro.test(x=aov_residuals) #test for normality. If p<.05 then the data is not normal #tests that the data is not normally distributed #saves p-value so that it can placed in if then statement for kruskal.test
+shap.test
+
+#lev.test[3,1] #this will be deleted later. Just finding out how to index the significance value for the if statement
+#if(lev.test[3] < .05)
+ # print("groups do not have the same variance. Running nonparametric test:")
+  #kruskal.test(avg_cell_auto_count_red ~ genotype, data=df20) #nonparametric test for anova
+#if(shap.test[2] < .05)
+ # print("data not normal. Running nonparametric test:")
+  #kruskal.test(avg_cell_auto_count_red ~ genotype, data=df20) #nonparametric test for anova
+```
+
+```{r}
+#Maturity Red 20 in Neurite
+
+#the bars subset the data to be analyzed
+bar1 <- subset(df20, genotype == "control", select = c("genotype", "avg_neurite_auto_count_red")) 
+bar2 <- subset(df20, genotype == "daf-2(e1370)",  select = c("genotype", "avg_neurite_auto_count_red"))
+bar3 <- subset(df20, genotype == "unc-33(mn407)", select = c("genotype", "avg_neurite_auto_count_red"))
+bar4 <- subset(df20, genotype == "unc-33(e204)", select = c("genotype", "avg_neurite_auto_count_red"))
+
+#gives statistical calculations for subsetted data
+a <- describe( bar1 $avg_neurite_auto_count_red) 
+b <- describe( bar2$avg_neurite_auto_count_red)
+c <- describe( bar3$avg_neurite_auto_count_red)
+d <- describe( bar4$avg_neurite_auto_count_red)
+
+#creates a dataframe of mean and standard deviations of the data
+plotdata <- data.frame(Genotype = c("contol", "daf-2(e1370", "unc-33(mn407)", "unc-33(e204)"),
+                       Means = c(a$mean, b$mean, c$mean, d$mean),
+                       Sdevs= c(a$sd, b$sd, c$sd, d$sd))
+plotdata
+
+#passes the catergorical varaibles as factors so that they can be correctly ordered 
+plotdata$Genotype <- factor(plotdata$Genotype, levels = c("contol", "daf-2(e1370", "unc-33(mn407)", "unc-33(e204)"))
+str(plotdata)
+
+
+barchart <- ggplot(data=plotdata, aes(x=Genotype, y=Means)) +
+  geom_bar(stat="identity",) +
+  geom_errorbar(aes(ymin=Means-Sdevs, ymax=Means+Sdevs), width =.2)+
+  coord_cartesian(ylim=c(0,4.5))+ #defines the boundaries shown in the graph
+  labs(y="Red AV per Neurite")
+  
+barchart
+
+#displays a histogram of the data set.THIS MUST BE NORMAL TO SHOW EFFICACY OF ANOVA
+hist(df20$avg_neurite_auto_count_red, breaks = 11) #break defines the binwidth for the histogram model
+ 
+#one-way anova test statistic
+one.way <- aov(avg_neurite_auto_count_red ~ genotype, data = df20)
+summary(one.way)
+
+#two-way anova
+two.way <- (aov(avg_neurite_auto_count ~ genotype + temperature, data= dfboth))
+two.way
+TukeyHSD(one.way)
+plot(one.way,1) #variance
+lev.test<-leveneTest(avg_neurite_auto_count_red ~ genotype, data=df20) #tests whether the variance across groups is statistically significant
+lev.test
+plot(one.way,2) #normality
+aov_residuals<-residuals(object=one.way)
+shap.test <-shapiro.test(x=aov_residuals) #test for normality. If p<.05 then the data is not normal #tests that the data is not normally distributed #saves p-value so that it can placed in if then statement for kruskal.test
+shap.test
+```
+
+
+```{r}
+#Maturity Red 20 in Soma avg_soma_red_auto
+
+#the bars subset the data to be analyzed
+bar1 <- subset(df20, genotype == "control", select = c("genotype", "avg_soma_red_auto")) 
+bar2 <- subset(df20, genotype == "daf-2(e1370)",  select = c("genotype", "avg_soma_red_auto"))
+bar3 <- subset(df20, genotype == "unc-33(mn407)", select = c("genotype", "avg_soma_red_auto"))
+bar4 <- subset(df20, genotype == "unc-33(e204)", select = c("genotype", "avg_soma_red_auto"))
+
+#gives statistical calculations for subsetted data
+a <- describe( bar1 $avg_soma_red_auto) 
+b <- describe( bar2$avg_soma_red_auto)
+c <- describe( bar3$avg_soma_red_auto)
+d <- describe( bar4$avg_soma_red_auto)
+
+#creates a dataframe of mean and standard deviations of the data
+plotdata <- data.frame(Genotype = c("contol", "daf-2(e1370", "unc-33(mn407)", "unc-33(e204)"),
+                       Means = c(a$mean, b$mean, c$mean, d$mean),
+                       Sdevs= c(a$sd, b$sd, c$sd, d$sd))
+plotdata
+
+#passes the catergorical varaibles as factors so that they can be correctly ordered 
+plotdata$Genotype <- factor(plotdata$Genotype, levels = c("contol", "daf-2(e1370", "unc-33(mn407)", "unc-33(e204)"))
+str(plotdata)
+
+
+barchart <- ggplot(data=plotdata, aes(x=Genotype, y=Means)) +
+  geom_bar(stat="identity",) +
+  geom_errorbar(aes(ymin=Means-Sdevs, ymax=Means+Sdevs), width =.2)+
+  coord_cartesian(ylim=c(0,10))+ #defines the boundaries shown in the graph
+  labs(y="Red AV per Soma")
+  
+barchart
+
+#displays a histogram of the data set.THIS MUST BE NORMAL TO SHOW EFFICACY OF ANOVA
+hist(df20$avg_soma_red_auto, breaks = 11) #break defines the binwidth for the histogram model
+
+#anova test statistic
+one.way <- aov(avg_soma_red_auto ~ genotype, data = df20)
+summary(one.way)
+TukeyHSD(one.way)
+```
+ 
+```{r}
+#Maturity Red 25 in Cell
+```
+
+```{r}
+#Maturity Red 20 Neurite 
+```
+
+```{r}
+#Maturity Red 20 Soma
+```
+
+```{r}
+#Maturity Yellow 20 in Cell
+```
+
+```{r}
+#Maturity Yellow 20 in Neurite
+```
+
+```{r}
+#Maturity Yellow 20 in Soma
+```
+
+```{r}
+#Maturity Yellow 25 in Cell
+```
+
+```{r}
+#Maturity Yellow 25 in Neurite
+```
+
+```{r}
+#Maturity Yellow 25 in Soma
+```
+
+```{r}
+#Area 20 in Cell
+```
+
+```{r}
+#Area 20 in Neurite
+```
+
+```{r}
+#Area 20 in Soma
+```
+
+```{r}
+ #Area 25 in Cell
+```
+
+```{r}
+#Area 25 in Neurite 
+```
+
+```{r}
+#Area 25 in Soma
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

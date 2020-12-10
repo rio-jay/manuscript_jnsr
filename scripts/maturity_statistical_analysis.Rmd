@@ -1,0 +1,140 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(gmodels)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(tidyverse)
+library(car)
+library(FSA)
+
+#reads in the dataframe
+dat <-read.csv(here("data.csv")) #reads in csv data file
+
+factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
+maturity_dat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+maturity_dat$genotype <- factor(trafdat$genotype, levels =c("control", "unc-33(mn407)", "unc-33(e204)" ))
+
+```
+
+```{r}
+#organizing the data
+#subset the columns that will be used in analysis and renames columns to more readable names
+   maturity_dat_red <- rstduiomaturity_dat %>% select(id, genotype, avg_neurite_auto_count_red, avg_soma_red_auto, avg_cell_auto_count_red)
+maturity_dat_red
+maturity_dat_red <- maturity_dat_red %>% 
+  rename(Neurite = avg_neurite_auto_count_red,
+         Soma = avg_soma_red_auto,
+         Cell = avg_cell_auto_count_red
+    )
+maturity_dat_red
+#now for the yellow data
+maturity_dat_yellow <- maturity_dat %>%  select(id, genotype, avg_neurite_auto_count_yellow, avg_soma_yellow_auto, avg_cell_auto_count_yellow)
+maturity_dat_yellow <-maturity_dat_yellow %>% 
+  rename(Neurite = avg_neurite_auto_count_yellow,
+         Soma = avg_soma_yellow_auto,
+         Cell = avg_cell_auto_count_yellow
+    )
+
+
+```
+
+
+```{r}
+#statistical tests
+#red neurite~genotype
+red_neurite_one_way <-lm(Neurite ~ genotype, data= maturity_dat_red)#creates a linear model of data to be analyzed 
+Anova(red_neurite_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(red_neurite_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(red_neurite_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of residuals in data set. if significant, 
+bartlett.test(data = maturity_dat_red , Neurite ~ genotype )#test for homogeneity of variance (if p is significant variance is unequal equal amoung groups), but assumes normality. significant shapiro test -> use fligner 
+fligner.test(Neurite ~ genotype, data = maturity_dat_red)
+kruskal.test(Neurite ~genotype, data = maturity_dat_red) #nonparametric rank sum test
+dunnTest(Neurite ~genotype, data = maturity_dat_red, method ="bh")
+```
+
+
+```{r}
+#red soma~genotype
+red_soma_one_way <-lm(Soma ~ genotype, data= maturity_dat_red)#creates a linear model of data to be analyzed 
+Anova(red_soma_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(red_soma_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(red_soma_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+bartlett.test(data = maturity_dat_red , Soma ~ genotype )#test for homogeneity of variance
+fligner.test(Soma ~genotype, data = maturity_dat_red)
+kruskal.test(Soma ~genotype, data = maturity_dat_red) #nonparametric rank sum test
+dunnTest(Soma ~genotype, data = maturity_dat_red, method ="bh")
+```
+
+
+```{r}
+#red cell~genotype
+red_cell_one_way <-lm(Cell ~ genotype, data= maturity_dat_red)#creates a linear model of data to be analyzed 
+Anova(red_cell_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(red_cell_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(red_cell_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+bartlett.test(data = maturity_dat_red , Cell ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+fligner.test(Cell ~genotype, data = maturity_dat_red)
+kruskal.test(Cell ~genotype, data = maturity_dat_red) #nonparametric rank sum test
+dunnTest(Cell ~genotype, data = maturity_dat_red, method ="bh")
+```
+
+
+```{r}
+#yellow neurite~genotype
+yellow_cell_one_way <-lm(Neurite ~ genotype, data= maturity_dat_yellow)#creates a linear model of data to be analyzed 
+Anova(yellow_cell_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(yellow_cell_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(yellow_cell_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+bartlett.test(data = maturity_dat_yellow , Neurite ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+fligner.test(Neurite ~ genotype, data = maturity_dat_yellow)
+kruskal.test(Neurite ~genotype, data = maturity_dat_yellow) #nonparametric rank sum test
+dunnTest(Neurite ~genotype, data = maturity_dat_yellow, method ="bh")
+```
+
+
+```{r}
+#yellow soma~genotype
+yellow_soma_one_way <-lm(Soma ~ genotype, data= maturity_dat_yellow)#creates a linear model of data to be analyzed 
+Anova(yellow_soma_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(yellow_soma_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(yellow_soma_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+bartlett.test(data = maturity_dat_yellow , Soma ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+fligner.test(Soma ~genotype, data = maturity_dat_yellow)
+kruskal.test(Soma ~genotype, data = maturity_dat_yellow) #nonparametric rank sum test
+dunnTest(Soma ~genotype, data = maturity_dat_yellow, method ="bh")
+```
+
+
+```{r}
+#yellow cell~genotype
+yellow_cell_one_way <-lm(Cell ~ genotype, data= maturity_dat_yellow)#creates a linear model of data to be analyzed 
+Anova(yellow_cell_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(yellow_cell_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(yellow_cell_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+bartlett.test(data = maturity_dat_yellow , Cell ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+fligner.test(Cell ~genotype, data = maturity_dat_yellow)
+kruskal.test(Cell ~genotype, data = maturity_dat_yellow) #nonparametric rank sum test
+dunnTest(Cell ~genotype, data = maturity_dat_yellow, method ="bh")
+```
+  
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

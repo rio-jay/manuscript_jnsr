@@ -1,0 +1,92 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(gmodels)
+library(car)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(psych)
+library(AICcmodavg)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+```
+
+```{r}
+dat <-read.csv("data.csv", header = TRUE,  sep=",", stringsAsFactors = TRUE)
+
+```
+
+
+```{r}
+#one way anovas
+one.way <-lm(avg_neurite_count_sum ~ genotype, data= dat)
+Anova(one.way,type="III")
+leveneTest(one.way)
+plot(one.way)#variance
+shapiro.test(x = aov_residuals )
+kruskal.test(avg_neurite_count_sum ~genotype, data = dat)
+pairwise.wilcox.test(dat$avg_neurite_count_sum, dat$genotype)
+
+one.way <-lm(avg_soma_count_sum ~ genotype, data= dat)
+Anova(one.way,type="III")
+leveneTest(one.way)
+shapiro.test(x = aov_residuals )
+ 
+plot(one.way,)#variance
+```
+
+```{r}
+#the bars subset the data to be analyzed
+bar1 <- subset(dat, genotype == "control", select = c("genotype", "avg_neurite_count_sum")) 
+bar2 <- subset(dat, genotype == "unc-33(mn407)", select = c("genotype", "avg_neurite_count_sum")) 
+bar3 <- subset(dat, genotype == "unc-33(e204)", select = c("genotype", "avg_neurite_count_sum")) 
+
+#gives statistical calculations for subsetted data
+a <- describe( bar1$avg_neurite_count_sum) 
+b <- describe( bar2$avg_neurite_count_sum)
+c <- describe( bar3$avg_neurite_count_sum)
+
+#creates a dataframe of mean and standard deviations of the data
+plotdata <- data.frame(Genotype = c("control", "unc-33(mn407)", "unc-33(e204)"),
+                       Means = c(a$mean, b$mean, c$mean),
+                       Sdevs= c(a$sd, b$sd, c$sd))
+plotdata
+
+#passes the catergorical varaibles as factors so that they can be correctly ordered 
+plotdata$Genotype <- factor(plotdata$Genotype, levels = c("control", "unc-33(mn407)", "unc-33(e204)"))
+str(plotdata)
+
+
+barchart <- ggplot(data=plotdata, aes(x=Genotype, y=Means )) +
+  geom_bar(stat="identity", fill=c("#009f23","royalblue","yellow2")) + #colors bars
+  geom_errorbar(aes(ymin=Means-Sdevs, ymax=Means+Sdevs), width =.2,)+ #error bars
+  coord_cartesian(ylim=c(0,12), expand = FALSE)+ #defines the boundaries shown in the graph
+  labs(y="Number of AVs in the AIY Neurite") +
+  geom_signif(inherit.aes= FALSE, comparisons = list(c("control", "unc-33(mn407)"),
+                                                     c("control", "unc-33(e204")))+ #significance lines
+  theme(axis.text.x = element_text(face = "italic"), #italicizes the x groupings
+          panel.background = element_blank(), #gets rid of graph background
+          axis.ticks.x = element_blank(),
+          axis.title.y = element_text(size = 15), #bolds the y axis title
+          strip.text = element_text(size= 10),
+          panel.grid = element_line(linetype = "solid", color = "snow3"),
+          panel.grid.major.x = element_line(color = "snow3"),
+          panel.border = element_rect(linetype = "solid", fill = NA),
+        )
+barchart
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

@@ -1,0 +1,104 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(ggplot2)
+library(psych)
+library(agricolae)
+library(car)
+library(AICcmodavg)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+
+#opens files for the separate temperature factors as well as one containing both and passes strings as factors
+df20 <- read.csv("data.csv", header=TRUE, sep=",", stringsAsFactors = TRUE)
+df25 <- read.csv("data25C.csv", header=TRUE, sep=",", stringsAsFactors = TRUE)
+dfboth <- read.csv("databoth.csv", header=TRUE, sep=",", stringsAsFactors = TRUE)
+is.data.frame(df20)
+sapply(df20, FUN=typeof)
+levels(df20$genotype)
+
+```
+
+```{r}
+#two way anovas to ensure there is no interaction effect
+two.way <-lm(avg_area_red_cell ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+
+two.way <-lm(avg_cell_auto_count_red ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+
+
+two.way <-lm(avg_cell_auto_count_yellow ~ genotype*temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+
+
+two.way <-lm(avg_cell_auto_count ~ genotype * temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+
+```
+
+```{r}
+#two way anovas to ensure there is no interaction effect
+two.way <-lm(avg_area_red_cell ~ genotype + temperature, data= dfboth)
+two.way <- Anova(two.way,type="III")
+#TukeyHSD(two.way)
+
+two.way <-lm(avg_cell_auto_count_red ~ genotype + temperature, data= dfboth)
+Anova(two.way,type="III")
+#TukeyHSD(two.way)
+
+two.way <-lm(avg_cell_auto_count_yellow ~ genotype + temperature, data= dfboth)
+Anova(two.way,type="III")
+#TukeyHSD(two.way)
+
+two.way <-lm(avg_cell_auto_count ~ genotype + temperature, data= dfboth)
+Anova(two.way,type="III")
+#TukeyHSD(two.way)
+```
+
+
+
+```{r}
+#Since there is no interaction affect, one way anovas can be run
+two.way <-lm(avg_area_red_cell ~ temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_area_red_cell ~  temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count_red ~  temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count_red ~  temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count_yellow ~ temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count_yellow ~  temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+
+two.way <-lm(avg_cell_auto_count ~  temperature, data= dfboth)
+Anova(two.way,type="III")
+plot(two.way,)#variance
+lev.test<-leveneTest(avg_cell_auto_count ~  temperature, data= dfboth) #tests whether the variance across groups is statistically significant
+lev.test
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

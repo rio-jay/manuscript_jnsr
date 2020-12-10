@@ -1,0 +1,199 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(gmodels)
+library(car)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(psych)
+library(AICcmodavg)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+library(FSA)
+library(rcompanion)
+library(Hmisc)
+library(ggtext)
+```
+
+```{r}
+dat <-read.csv("data.csv", header = TRUE,  sep=",", stringsAsFactors = TRUE) #reads in csv data file
+
+factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
+trafdat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+trafdat$genotype <- factor(trafdat$genotype, levels =c("control", "unc-33(mn407)", "unc-33(e204)" ))
+
+```
+
+
+```{r}
+#statistical tests
+#axon analysis
+one.way <-lm(avg_neurite_count_sum ~ genotype, data= trafdat)#creates a linear model of data to be analyzed 
+Anova(one.way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(one.way) #creates plots to visually analyze data
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+bartlett.test(data = trafdat, avg_neurite_count_sum ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(avg_neurite_count_sum ~genotype, data = trafdat)#nonparametric rank sum test
+dunnTest(avg_neurite_count_sum ~genotype, data = trafdat, method ="bh")#posthoc test for multiple comparisons
+```
+
+
+```{r}
+#soma analysis
+one.way <-lm(avg_soma_count_sum ~ genotype, data= trafdat) #creates a linear model of data to be analyzed 
+Anova(one.way,type="III") #performs a type III anova which accounts for unequal sample sizes 
+plot(one.way) #creates plots to visually analyze data 
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x=aov_residuals) #tests for normality of data set
+bartlett.test(data = trafdat, avg_soma_count_sum ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(data = trafdat, avg_soma_count_sum ~ genotype)#nonparametric rank sum test
+dunnTest(avg_soma_count_sum ~genotype, data = trafdat, method ="bh") #posthoc test for multiple comparisons
+```
+
+
+```{r}
+#cell analysis
+one.way <-lm(avg_cell_count_sum ~ genotype, data= trafdat) #creates a linear model of data to be analyzed 
+Anova(one.way,type="III")#performs a type III anova which accounts for unequal sample sizes 
+plot(one.way) #creates plots to visually analyze data 
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x=aov_residuals) #tests for normality of data set
+bartlett.test(data = trafdat, avg_cell_count_sum ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(data = trafdat, avg_cell_count_sum ~ genotype)#nonparametric rank sum test
+dunnTest(avg_cell_count_sum ~genotype, data = trafdat, method ="bh")  #posthoc test for multiple comparisons
+```
+
+```{r}
+#jitter and theme elements to feed into ggplots
+  fig_one_theme <- theme(axis.text.x = element_markdown(face = "italic", family = "Calibri", angle=20,hjust = 1, vjust = 1, rotate_margins = TRUE, fill = "red", padding = unit(c(12), "pt")),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major.x = element_line(color = "snow3"),
+        panel.grid = element_line(linetype = "solid", color = "snow3"),
+        panel.border = element_rect(linetype = "solid", fill = NA),
+        text = element_text(size = 12),
+        ) #this will need to be resized later, maybe like to 18 or so
+        
+#position jitter function
+posn_j <- position_jitter(width=.2)
+
+```
+
+```{r}
+#Neurite VIOLIN PLOT
+fig_1_plotA <- ggplot(data=trafdat, aes(x=genotype, y=avg_neurite_count_sum)) +
+  geom_violin(draw_quantiles = c(.5), fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+  fig_one_theme+
+  coord_cartesian(ylim = c(0,20))+
+  labs(y = "Number of AV's in the AIY Neurite",
+       x = "Genotype")+
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
+              annotations = c("7.32e-05"))+
+  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
+              annotations = c("4.72e-06"),
+              y_position = 13)  
+
+fig_1_plotA
+
+
+```
+
+```{r}
+#SOMA LINEPLOT
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+fig_1_plotB <- ggplot(data=trafdat, aes(x=genotype, y=avg_soma_count_sum)) +
+  geom_violin(draw_quantiles = c(.5),fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+
+  coord_cartesian(ylim = c(0,20))+
+  fig_one_theme+
+  labs(y = "Number of AV's in the AIY Soma",
+       x = "Genotype")+
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
+              annotations = c("NS"))+
+  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
+              annotations = c("NS"),
+              y_position = 17)  
+  
+fig_1_plotB
+```
+
+```{r}
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+fig_1_plotC <- ggplot(data=trafdat, aes(x=genotype, y=avg_cell_count_sum)) +
+  geom_violin(draw_quantiles = c(.5), fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+
+  coord_cartesian(ylim = c(0,20))+
+  fig_one_theme+
+  labs(y = "Number of AV's in the AIY Cell",
+       x = "Genotype")+
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
+              annotations = c("1.72e-02"))+
+  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
+              annotations = c("9.92e-03	"),
+              y_position = 20)
+fig_1_plotC
+```
+
+```{r}
+fig_1_plotA
+fig_1_plotB
+fig_1_plotC
+```
+
+
+```{r}
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot with both of the neurite and the soma counts
+linePlot <- ggplot(data=trafdat) +
+  geom_violin(draw_quantiles = c(.5), aes(x=genotype, y=avg_neurite_count_sum, color = ""))+
+  geom_violin(draw_quantiles = c(.5), aes(x=genotype, y=avg_soma_count_sum), color = "royalblue")+
+  geom_point(aes(x=genotype, y=avg_neurite_count_sum),
+             alpha = 0.6,
+             position =posn_j,
+             color = "red")+
+    geom_point(aes(x=genotype, y=avg_soma_count_sum),
+             alpha = 0.6,
+             position =posn_j,
+             color = "royalblue")+
+  stat_summary(fun.data =mean_sdl,
+               fun.args = list(mult = 1),
+               geom= "errorbar", 
+               width = .2,
+               color = "red",
+               aes(x=genotype, y=avg_cell_count_sum))
+linePlot
+```
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

@@ -1,0 +1,180 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does 
+```{r}
+library(ggplot2)
+library(car)
+library(tidyverse)
+library(MASS)
+library(dplyr)
+library(magrittr)
+library(rcompanion)
+library(grid)
+library(pwr)
+library(gmodels)
+library(car)
+library(qqplotr)
+library(ggpubr)
+library(broom)
+library(FSA)
+library(rcompanion)
+library(ggtext)
+library(dplyr)
+library(tidyr)
+library(data.table)
+#opens files for the separate temperature factors as well as one containing both and passes strings as factors
+df20 <- read.csv("data.csv")
+df20 <- filter(df20, genotype %in% factorNames, preserve = TRUE)
+dfmat <- read.csv(here("datafolder","decon.maturity.csv", header=TRUE, sep = ",", stringsAsFactors = TRUE, fileEncoding = "UTF-8-BOM"))
+here()
+factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)")
+dfmat <- filter(dfmat, genotype %in% factorNames, preserve = TRUE) #filters out daf-2 data
+dfred <- filter(dfmat, color == "red") #creates a dataframe of red data
+dfyellow <- filter(dfmat, color == "yellow") #creates a dataframe of yellow data
+
+```
+
+
+```{r}
+#Density plots of maturity data
+posn_j <- position_jitter(width=.2)
+#neurite maturity plot
+matgraph1 <- ggplot() +
+  geom_point(data = dfred, aes(x=genotype, y=avg_neurite_count_maturity), alpha = .5, position = posn_j, color = "red")+
+  geom_point(data = dfyellow, aes(x=genotype, y=avg_neurite_count_maturity), position = posn_j, alpha = .1, color = "blue")
+matgraph1
+#soma maturity plot
+matgraph2 <- ggplot(data = dfmat) +
+  geom_violin(aes(x=genotype, y=avg_soma_count_maturity, fill = color))
+matgraph2
+#cell maturity plot
+matgraph3 <- ggplot(data = dfmat) +
+  geom_violin(aes(x=genotype, y=avg_cell_count_maturity, fill = color), position = "identity", alpha = .5)
+matgraph3
+```
+
+
+```{r}
+#the bars subset the data to be analyzed
+bar1 <- subset(df20, genotype == "control", select = c("genotype", "avg_neurite_auto_count_red", "avg_neurite_auto_count_yellow")) 
+bar2 <- subset(df20, genotype == "unc-33(mn407)", select = c("genotype", "avg_neurite_auto_count_red", "avg_neurite_auto_count_yellow")) 
+bar3 <- subset(df20, genotype == "unc-33(e204)", select = c("genotype", "avg_neurite_auto_count_red", "avg_neurite_auto_count_yellow" )) 
+
+#gives statistical calculations for subsetted data
+bar1red <- describe(bar1$avg_neurite_auto_count_red)
+bar1yellow <- describe(bar1$avg_neurite_auto_count_yellow)
+bar2red <- describe(bar2$avg_neurite_auto_count_red)
+bar2yellow <- describe(bar2$avg_neurite_auto_count_yellow)
+bar3red <- describe(bar3$avg_neurite_auto_count_red)
+bar3yellow <- describe(bar3$avg_neurite_auto_count_yellow)
+
+print(bar1red)
+                       
+#creates a dataframe of mean and standard deviations of the data
+matstats <- data.frame(Genotype = c("control", "control", "unc-33(mn407)","unc-33(mn407)", "unc-33(e204)", "unc-33(e204)"),
+                      Means = c(bar1red$mean, bar1yellow$mean, bar2red$mean, bar2yellow$mean, bar3red$mean, bar3yellow$mean),
+                      Sdevs= c(bar1red$sd, bar1yellow$sd, bar2red$sd, bar2yellow$sd, bar3red$sd, bar3yellow$sd),
+                      Color = c("red", "yellow", "red", "yellow", "red", "yellow")
+                      )
+ratiodata <- data.frame(Genotype = c("control","unc-33(mn407)", "unc-33(e204)")
+                        Ratios = c(matstats$))
+
+#mutate to add a colum for the ratios of the maturity in each variables dataframe
+df20 <- mutate(data = matdata,
+               
+               )
+```
+
+
+```{r}
+#using dplyr (still not getting this to work)
+
+#neurite ratio
+  df20$ratio_neurite = (df20$avg_neurite_auto_count_red/df20$avg_neurite_auto_count_yellow)
+
+ <- df20 %>%
+  group_by(genotype) %>% #soma ratio
+  mutate(ratio_soma = mean(avg_soma_count_red)/mean(avg_soma_count_yellow) )
+df20ratio <- df20 %>%
+  group_by(genotype) %>% #cell ratio
+  mutate(ratio_cell = mean(avg_cell_auto_count_red)/mean(avg_cell_auto_count_yellow) )  
+dfratio
+
+
+control_red_neurite_sum <- subset(df20$)
+#creating a dataframe of the sums of factors that can be presents in a graph or to just organize them. Pivoting the data might be more successfull, but this is a manual attempt if that doesn't end up working out 
+maturity_matrix <- data.frame("strain" = c("control", "daf-2(e1370)", "unc-33(mn407)", "unc-33(e204)"),
+                              "red_neurite_sum" = c(1,2,3,4),
+                              "yellow_neurite_sum" = c(10,20,30,40)
+
+                              )
+maturity_matrixx <- data.frame("control" = c(),
+                              "unc-33(mn407)" = c(1,2,3,4),
+                              "unc-33(e204)" = c(10,20,30,40).
+                              "color" = c(10,20,30,40)
+)
+
+sum(df20$avg_neurite_auto_count_red)
+```
+
+
+```{r}
+#attempt to wrangle the data using tidyr
+maturity_neurite_sums <-  aggregate(cbind(avg_neurite_auto_count_red,avg_neurite_auto_count_yellow)~genotype, df20, sum)
+maturity_neurite_sums
+maturity_soma_sums <-  aggregate(cbind(avg_soma_red_auto,avg_soma_yellow_auto)~genotype, df20, sum)
+maturity_cell_sums <-  aggregate(cbind(avg_cell_auto_count_red,avg_cell_auto_count_yellow)~genotype, df20, sum)
+
+#turning the pivottables into proportional tables
+maturity_prop_neurite <- proportions(maturity_neurite_sums, 2)
+#graphs for the maturity data
+
+```
+
+
+```{r}
+ct<-table(dat$avg_cell_auto_count_red, dat$genotype) #a contingency table of the two variables to analyze 
+  ct #shows the table
+  tchi<-chiq.test(ct) #Pearson’s chi-squared test
+  tchi #shows the test data 
+  pairwiseNominalIndependence(ct1,
+    +                              	compare = "column", #Strains organized in columns
+    +                              	fisher  = FALSE,
+    +                              	gtest   = FALSE,
+    +                              	chisq   = TRUE,
+    +                              	method  = "fdr") 
+
+  ct<-table(dat$Defas, dat$Strain) #a contingency table of the two variables to analyze 
+  Ct #shows the table
+  tchi<-chiq.test(ct) #Pearson’s chi-squared test
+  tchi #shows the test data 
+  pairwiseNominalIndependence(ct1,
+    +                              	compare = "column", #Strains organized in columns
+    +                              	fisher  = FALSE,
+    +                              	gtest   = FALSE,
+    +                              	chisq   = TRUE,
+    +                              	method  = "fdr") 
+
+  
+    ct<-table(dat$Defas, dat$Strain) #a contingency table of the two variables to analyze 
+  Ct #shows the table
+  tchi<-chiq.test(ct) #Pearson’s chi-squared test
+  tchi #shows the test data 
+  pairwiseNominalIndependence(ct1,
+    +                              	compare = "column", #Strains organized in columns
+    +                              	fisher  = FALSE,
+    +                              	gtest   = FALSE,
+    +                              	chisq   = TRUE,
+    +                              	method  = "fdr") 
+
+```

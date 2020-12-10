@@ -1,0 +1,265 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(gmodels)
+library(car)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(psych)
+library(AICcmodavg)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+library(FSA)
+library(rcompanion)
+library(Hmisc)
+library(ggtext)
+```
+
+```{r}
+dat <-read.csv(here("data.csv")) #reads in csv data file
+
+factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
+trafdat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+trafdat$genotype <- factor(trafdat$genotype, levels =c("control", "unc-33(mn407)", "unc-33(e204)" ))
+```
+
+
+```{r}
+#one way anovas
+#neurite anova
+one.way <-lm(avg_neurite_count_sum ~ genotype, data= trafdat)#creates a linear model of data to be analyzed 
+Anova(one.way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(one.way) #creates plots to visually analyze data
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+kruskal.test(avg_neurite_count_sum ~genotype, data = trafdat)#test for homogeneity of variance (which is needed for kruskal wallis)
+dunnTest(avg_neurite_count_sum ~genotype, data = trafdat, method ="bh")
+```
+
+
+```{r}
+#soma anova
+one.way <-lm(avg_soma_count_sum ~ genotype, data= trafdat) #creates a linear model of data to be analyzed 
+Anova(one.way,type="III") #performs a type III anova which accounts for unequal sample sizes 
+plot(one.way) #creates plots to visually analyze data 
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x=aov_residuals) #tests for normality of data set
+bartlett.test(data = trafdat, avg_soma_count_sum ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(data = trafdat, avg_soma_count_sum ~ genotype)#nonparametric rank sum test
+dunnTest(avg_soma_count_sum ~genotype, data = trafdat, method ="bh") #posthoc test for multiple comparisons
+```
+
+
+```{r}
+#cell  anova
+one.way <-lm(avg_cell_count_sum ~ genotype, data= trafdat) #creates a linear model of data to be analyzed 
+Anova(one.way,type="III")#performs a type III anova which accounts for unequal sample sizes 
+plot(one.way) #creates plots to visually analyze data 
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x=aov_residuals) #tests for normality of data set
+bartlett.test(data = trafdat, avg_cell_count_sum ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(data = trafdat, avg_cell_count_sum ~ genotype)#nonparametric rank sum test
+dun1 <-dunnTest(avg_cell_count_sum ~genotype, data = trafdat, method ="bh", alpha = .05)  #posthoc test for multiple comparisons
+str(dun1)
+```
+
+```{r}
+#the bars subset the data to be analyzed
+bar1 <- subset(dat, genotype == "control", select = c("genotype", "avg_neurite_count_sum")) 
+bar2 <- subset(dat, genotype == "unc-33(mn407)", select = c("genotype", "avg_neurite_count_sum")) 
+bar3 <- subset(dat, genotype == "unc-33(e204)", select = c("genotype", "avg_neurite_count_sum")) 
+
+#gives statistical calculations for subsetted data
+a <- describe( bar1$avg_neurite_count_sum) 
+b <- describe( bar2$avg_neurite_count_sum)
+c <- describe( bar3$avg_neurite_count_sum)
+
+#creates a dataframe of mean and standard deviations of the data
+plotdata <- data.frame(Genotype = c("control", "unc-33(mn407)", "unc-33(e204)"),
+                       Means = c(a$mean, b$mean, c$mean),
+                       Sdevs= c(a$sd, b$sd, c$sd))
+plotdata
+
+#passes the catergorical varaibles as factors so that they can be correctly ordered 
+plotdata$Genotype <- factor(plotdata$Genotype, levels = c("control", "unc-33(mn407)", "unc-33(e204)"))
+str(plotdata)
+
+
+barchart <- ggplot(data=plotdata, aes(x=Genotype, y=Means )) +
+  geom_bar(stat="identity", fill=c("#009f23","royalblue","yellow2")) + #colors bars
+  geom_errorbar(aes(ymin=Means-Sdevs, ymax=Means+Sdevs), width =.2,)+ #error bars
+  coord_cartesian(ylim=c(0,12), expand = FALSE)+ #defines the boundaries shown in the graph
+  labs(y="Number of AVs in the AIY Neurite") +
+  ## significance code is not ready yet## geom_signif(inherit.aes= FALSE, comparisons = list(c("control", "unc-33(mn407)"),
+                                                     ##c("control", "unc-33(e204")))+ #significance lines
+  theme(axis.text.x = element_text(face = "italic"), #italicizes the x groupings
+          panel.background = element_blank(), #gets rid of graph background
+          axis.ticks.x = element_blank(),
+          axis.title.y = element_text(size = 15), #bolds the y axis title
+          strip.text = element_text(size= 10),
+          panel.grid = element_line(linetype = "solid", color = "snow3"),
+          panel.grid.major.x = element_line(color = "snow3"),
+          panel.border = element_rect(linetype = "solid", fill = NA),
+        )
+barchart
+
+#NEURITE VIOLIN PLOT
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+linePlot1 <- ggplot(data=trafdat, aes(x=genotype, y=avg_neurite_count_sum)) +
+  geom_violin(draw_quantiles = c(.5))+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .7,  width=0.2) +
+
+  coord_cartesian(ylim = c(0,20))+
+  theme(axis.text.x = element_markdown(face = "italic"),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major.x = element_line(color = "snow3"),
+        panel.grid = element_line(linetype = "solid", color = "snow3"),
+        panel.border = element_rect(linetype = "solid", fill = NA))+
+  labs(y = "Number of AV's in the AIY Neurite",
+       x = "Genotype")
+
+linePlot1
+
+```
+
+```{r}
+#the bars subset the data to be analyzed
+bar1 <- subset(dat, genotype == "control", select = c("genotype", "avg_soma_count_sum")) 
+bar2 <- subset(dat, genotype == "unc-33(mn407)", select = c("genotype", "avg_soma_count_sum")) 
+bar3 <- subset(dat, genotype == "unc-33(e204)", select = c("genotype", "avg_soma_count_sum")) 
+
+#gives statistical calculations for subsetted data
+a <- describe( bar1$avg_soma_count_sum) 
+b <- describe( bar2$avg_soma_count_sum)
+c <- describe( bar3$avg_soma_count_sum)
+
+#creates a dataframe of mean and standard deviations of the data
+plotdata <- data.frame(Genotype = c("control", "unc-33(mn407)", "unc-33(e204)"),
+                       Means = c(a$mean, b$mean, c$mean),
+                       Sdevs= c(a$sd, b$sd, c$sd))
+plotdata
+
+#passes the catergorical varaibles as factors so that they can be correctly ordered 
+plotdata$Genotype <- factor(plotdata$Genotype, levels = c("control", "unc-33(mn407)", "unc-33(e204)"))
+str(plotdata)
+
+x_label_size <- 10 #sets the base size for the graph 
+y_label_size <- x_label_size * 1.5 #creates a list of scaled font sizes
+
+barchart <- ggplot(data=plotdata, aes(x=Genotype, y=Means )) +
+  geom_bar(stat="identity", fill=c("#009f23","royalblue","yellow2")) + #colors bars
+  geom_errorbar(aes(ymin=Means-Sdevs, ymax=Means+Sdevs), width =.2,)+ #error bars
+  coord_cartesian(ylim=c(0,12), expand = FALSE)+ #defines the boundaries shown in the graph
+  labs(y="Number of AVs in the AIY Soma") +
+  theme(axis.text.x = element_text(face = "italic"), #italicizes the x groupings
+          panel.background = element_blank(), #gets rid of graph background
+          axis.ticks.x = element_blank(), #gets of of ticks on the x axis
+          axis.title.y = element_text(size = x_label_size), #bolds the y axis title
+          strip.text = element_text(size= y_label_size), #
+          panel.grid = element_line(linetype = "solid", color = "snow3"),
+          panel.grid.major.x = element_line(color = "snow3"),
+          panel.border = element_rect(linetype = "solid", fill = NA)
+  )
+barchart
+
+#SOMA LINEPLOT
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+linePlot2 <- ggplot(data=trafdat, aes(x=genotype, y=avg_soma_count_sum)) +
+  geom_violin(draw_quantiles = c(.5))+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .7,  width=0.2) +
+
+  coord_cartesian(ylim = c(0,20))+
+  theme(axis.text.x = element_markdown(face = "italic"),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major.x = element_line(color = "snow3"),
+        panel.grid = element_line(linetype = "solid", color = "snow3"),
+        panel.border = element_rect(linetype = "solid", fill = NA))+
+  labs(y = "Number of AV's in the AIY Soma",
+       x = "Genotype")
+linePlot2
+```
+
+```{r}
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+linePlot3 <- ggplot(data=trafdat, aes(x=genotype, y=avg_cell_count_sum)) +
+  geom_violin(draw_quantiles = c(.5))+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .7,  width=0.2) +
+
+  coord_cartesian(ylim = c(0,20))+
+  theme(axis.text.x = element_markdown(face = "italic"),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major.x = element_line(color = "snow3"),
+        panel.grid = element_line(linetype = "solid", color = "snow3"),
+        panel.border = element_rect(linetype = "solid", fill = NA))+
+  labs(y = "Number of AV's in the AIY Cell",
+       x = "Genotype")
+
+linePlot3
+```
+
+```{r}
+linePlot1
+linePlot2
+linePlot3
+```
+
+
+```{r}
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot with both of the neurite and the soma counts
+linePlot <- ggplot(data=trafdat) +
+  geom_violin(draw_quantiles = c(.5), aes(x=genotype, y=avg_neurite_count_sum, color = ""))+
+  geom_violin(draw_quantiles = c(.5), aes(x=genotype, y=avg_soma_count_sum), color = "royalblue")+
+  geom_point(aes(x=genotype, y=avg_neurite_count_sum),
+             alpha = 0.6,
+             position =posn_j,
+             color = "red")+
+    geom_point(aes(x=genotype, y=avg_soma_count_sum),
+             alpha = 0.6,
+             position =posn_j,
+             color = "royalblue")+
+  stat_summary(fun.data =mean_sdl,
+               fun.args = list(mult = 1),
+               geom= "errorbar", 
+               width = .2,
+               color = "red",
+               aes(x=genotype, y=avg_cell_count_sum))
+linePlot
+```
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
