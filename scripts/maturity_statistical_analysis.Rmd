@@ -15,20 +15,21 @@ library(dplyr)
 library(tidyverse)
 library(car)
 library(FSA)
+library(here)
 
 #reads in the dataframe
 dat <-read.csv(here("data.csv")) #reads in csv data file
 
 factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
 maturity_dat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
-maturity_dat$genotype <- factor(trafdat$genotype, levels =c("control", "unc-33(mn407)", "unc-33(e204)" ))
+maturity_dat$genotype <- factor(maturity_dat$genotype, levels =c("control", "unc-33(mn407)", "unc-33(e204)" ))
 
 ```
 
 ```{r}
 #organizing the data
 #subset the columns that will be used in analysis and renames columns to more readable names
-   maturity_dat_red <- rstduiomaturity_dat %>% select(id, genotype, avg_neurite_auto_count_red, avg_soma_red_auto, avg_cell_auto_count_red)
+   maturity_dat_red <- maturity_dat %>% select(id, genotype, avg_neurite_auto_count_red, avg_soma_red_auto, avg_cell_auto_count_red)
 maturity_dat_red
 maturity_dat_red <- maturity_dat_red %>% 
   rename(Neurite = avg_neurite_auto_count_red,

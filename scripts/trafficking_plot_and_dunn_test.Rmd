@@ -22,10 +22,11 @@ library(FSA)
 library(rcompanion)
 library(Hmisc)
 library(ggtext)
+library(here)
 ```
 
 ```{r}
-dat <-read.csv("data.csv", header = TRUE,  sep=",", stringsAsFactors = TRUE) #reads in csv data file
+dat <-read.csv(here("data.csv")) #reads in csv data file
 
 factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
 trafdat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
@@ -75,14 +76,14 @@ dunnTest(avg_cell_count_sum ~genotype, data = trafdat, method ="bh")  #posthoc t
 
 ```{r}
 #jitter and theme elements to feed into ggplots
-  fig_one_theme <- theme(axis.text.x = element_markdown(face = "italic", family = "Calibri", angle=20,hjust = 1, vjust = 1, rotate_margins = TRUE, fill = "red", padding = unit(c(12), "pt")),
+  fig_one_theme <- theme(axis.text.x = element_markdown(face = "italic", size = 13),
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
         panel.background = element_blank(),
         panel.grid.major.x = element_line(color = "snow3"),
         panel.grid = element_line(linetype = "solid", color = "snow3"),
         panel.border = element_rect(linetype = "solid", fill = NA),
-        text = element_text(size = 12),
+        text = element_text(size = 24),
         ) #this will need to be resized later, maybe like to 18 or so
         
 #position jitter function
@@ -100,7 +101,7 @@ fig_1_plotA <- ggplot(data=trafdat, aes(x=genotype, y=avg_neurite_count_sum)) +
         geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
   fig_one_theme+
   coord_cartesian(ylim = c(0,20))+
-  labs(y = "Number of AV's in the AIY Neurite",
+  labs(y = "AV's per AIY Neurite",
        x = "Genotype")+
   geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
               annotations = c("7.32e-05"))+
@@ -126,7 +127,7 @@ fig_1_plotB <- ggplot(data=trafdat, aes(x=genotype, y=avg_soma_count_sum)) +
 
   coord_cartesian(ylim = c(0,20))+
   fig_one_theme+
-  labs(y = "Number of AV's in the AIY Soma",
+  labs(y = "AV's per AIY Soma",
        x = "Genotype")+
   geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
               annotations = c("NS"))+
@@ -149,7 +150,7 @@ fig_1_plotC <- ggplot(data=trafdat, aes(x=genotype, y=avg_cell_count_sum)) +
 
   coord_cartesian(ylim = c(0,20))+
   fig_one_theme+
-  labs(y = "Number of AV's in the AIY Cell",
+  labs(y = "AV's per AIY Cell",
        x = "Genotype")+
   geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
               annotations = c("1.72e-02"))+
