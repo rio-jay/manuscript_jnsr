@@ -17,7 +17,7 @@ library(tidyverse)
 library(ggpubr)
 library(here)
 #reads in the dataframe
-dat <-read.csv(here("data.csv")) #reads in csv data file
+dat <-read.csv(here("datafolder", "data.csv")) #reads in csv data file
 here()
 factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
 maturity_dat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
@@ -80,7 +80,7 @@ maturity_red_plot <- ggplot(data=maturity_dat_red, aes(x=genotype, y=value, fill
   fig_one_theme+ #loads theme elements from other figures in the manuscript
   coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
   theme(legend.position = "none")+ #gets rid of legend
-  labs(y = "AL's per AIY Neuron")
+  labs(y = "ALs per AIY Neuron")
   #geom_signif(stat="identity"
               #data = data.frame(x=c(.85,.85),
                                # xend=c(2.15,3.15),
@@ -104,7 +104,7 @@ maturity_yellow_plot <- ggplot(data=maturity_dat_yellow, aes(x=genotype, y=value
   fig_one_theme+ #loads theme elements from other figures in the manuscript
   coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
   theme(legend.position = "none")+
-  labs(y = "AG's per AIY Neuron")
+  labs(y = "AGs per AIY Neuron")
 
 
 maturity_yellow_plot
