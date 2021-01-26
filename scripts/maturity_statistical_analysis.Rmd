@@ -22,7 +22,8 @@ library(FSA)
 library(here)
 
 #reads in the dataframe
-dat <-read.csv(here("data.csv")) #reads in csv data file
+dat <-read.csv(here("datafolder", "data.csv")) #reads in csv data file
+
 
 factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
 maturity_dat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
@@ -65,7 +66,13 @@ bartlett.test(data = maturity_dat_red , Neurite ~ genotype )#test for homogeneit
 fligner.test(Neurite ~ genotype, data = maturity_dat_red)
 kruskal.test(Neurite ~genotype, data = maturity_dat_red) #nonparametric rank sum test
 #a significant kruskal-Wallis test a
-dunnTest(Neurite ~genotype, data = maturity_dat_red, method ="bh")
+zData <-dunnTest(Neurite ~genotype, data = maturity_dat_red, method ="bh", list =TRUE) #performs a dunntest
+zData<- zData$res #Takes out the stats info from the dunn test and creates a data frame
+RedNeuriteComparison <-data.frame(comparison = zData[,1],
+                                  z_value = zData[,2]
+                                  )
+RedNeuriteComparison #data frame of each comparison and z value in this region.
+#Next, this will be cbinded to a data frame with the other regions to create the data frame with all of the info for the figure.
 ```
 
 
