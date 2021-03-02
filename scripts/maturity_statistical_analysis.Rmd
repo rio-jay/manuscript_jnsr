@@ -1,10 +1,10 @@
 ---
 title: "R Notebook"
 output:
-  html_notebook: default
+  word_document: default
   html_document:
     df_print: paged
-  word_document: default
+  html_notebook: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
@@ -31,9 +31,12 @@ maturity_dat$genotype <- factor(maturity_dat$genotype, levels =c("control", "unc
 
 ```
 
+
+
+
 ```{r}
 #organizing the data
-#subset the columns that will be used in analysis and renames columns to more readable names
+###subset the columns that will be used in analysis and renames columns to more readable names
    maturity_dat_red <- maturity_dat %>% select(id, genotype, avg_neurite_auto_count_red, avg_soma_red_auto, avg_cell_auto_count_red)
 maturity_dat_red
 maturity_dat_red <- maturity_dat_red %>% 
@@ -50,7 +53,6 @@ maturity_dat_yellow <-maturity_dat_yellow %>%
          Cell = avg_cell_auto_count_yellow
     )
 
-
 ```
 
 
@@ -66,13 +68,13 @@ bartlett.test(data = maturity_dat_red , Neurite ~ genotype )#test for homogeneit
 fligner.test(Neurite ~ genotype, data = maturity_dat_red)
 kruskal.test(Neurite ~genotype, data = maturity_dat_red) #nonparametric rank sum test
 #a significant kruskal-Wallis test a
-zData <-dunnTest(Neurite ~genotype, data = maturity_dat_red, method ="bh", list =TRUE) #performs a dunntest
-zData<- zData$res #Takes out the stats info from the dunn test and creates a data frame
-RedNeuriteComparison <-data.frame(comparison = zData[,1],
-                                  z_value = zData[,2]
-                                  )
-RedNeuriteComparison #data frame of each comparison and z value in this region.
-#Next, this will be cbinded to a data frame with the other regions to create the data frame with all of the info for the figure.
+dunn_data <-dunnTest(Neurite ~genotype, data = maturity_dat_red, method ="bh", list =TRUE) #performs a dunntest
+dunn_data<- dunn_data$res #Takes out the stats info from the dunn test and creates a data frame
+RedNeuriteComparison <-data.frame(comparison = dunn_data[,1],
+                                  z_value = dunn_data[,2],
+                                  region = c("Neurite", "Neurite", "Neurite"),
+                                  p_adjusted = dunn_data[,4])
+RedNeuriteComparison #This chunk of stats output will be combined with all of the others at the end
 ```
 
 
@@ -86,7 +88,13 @@ shapiro.test(x = aov_residuals)#tests for normality of data set
 bartlett.test(data = maturity_dat_red , Soma ~ genotype )#test for homogeneity of variance
 fligner.test(Soma ~genotype, data = maturity_dat_red)
 kruskal.test(Soma ~genotype, data = maturity_dat_red) #nonparametric rank sum test
-dunnTest(Soma ~genotype, data = maturity_dat_red, method ="bh")
+dunn_data <-dunnTest(Soma ~genotype, data = maturity_dat_red, method ="bh")
+dunn_data <- dunn_data$res
+RedSomaComparison <-data.frame(comparison = dunn_data[,1],
+                                  z_value = dunn_data[,2],
+                                  region = c("Soma", "Soma", "Soma"),
+                                  p_adjusted = dunn_data[,4])
+RedSomaComparison
 ```
 
 
@@ -100,7 +108,13 @@ shapiro.test(x = aov_residuals)#tests for normality of data set
 bartlett.test(data = maturity_dat_red , Cell ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
 fligner.test(Cell ~genotype, data = maturity_dat_red)
 kruskal.test(Cell ~genotype, data = maturity_dat_red) #nonparametric rank sum test
-dunnTest(Cell ~genotype, data = maturity_dat_red, method ="bh")
+dunn_data <- dunnTest(Cell ~genotype, data = maturity_dat_red, method ="bh")
+dunn_data <- dunn_data$res
+RedCellComparison <-data.frame(comparison = dunn_data[,1],
+                                  z_value = dunn_data[,2],
+                                  region = c("Cell", "Cell", "Cell"),
+                                  p_adjusted = dunn_data[,4])
+RedCellComparison
 ```
 
 
@@ -114,7 +128,13 @@ shapiro.test(x = aov_residuals)#tests for normality of data set
 bartlett.test(data = maturity_dat_yellow , Neurite ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
 fligner.test(Neurite ~ genotype, data = maturity_dat_yellow)
 kruskal.test(Neurite ~genotype, data = maturity_dat_yellow) #nonparametric rank sum test
-dunnTest(Neurite ~genotype, data = maturity_dat_yellow, method ="bh")
+dunn_data <- dunnTest(Neurite ~genotype, data = maturity_dat_yellow, method ="bh")
+dunn_data<- dunn_data$res #Takes out the stats info from the dunn test and creates a data frame
+YellowNeuriteComparison <-data.frame(comparison = dunn_data[,1],
+                                  z_value = dunn_data[,2],
+                                  region = c("Neurite", "Neurite", "Neurite"),
+                                  p_adjusted = dunn_data[,4])
+YellowNeuriteComparison
 ```
 
 
@@ -128,7 +148,13 @@ shapiro.test(x = aov_residuals)#tests for normality of data set
 bartlett.test(data = maturity_dat_yellow , Soma ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
 fligner.test(Soma ~genotype, data = maturity_dat_yellow)
 kruskal.test(Soma ~genotype, data = maturity_dat_yellow) #nonparametric rank sum test
-dunnTest(Soma ~genotype, data = maturity_dat_yellow, method ="bh")
+dunn_data <-dunnTest(Soma ~genotype, data = maturity_dat_yellow, method ="bh")
+dunn_data <- dunn_data$res
+YellowSomaComparison <-data.frame(comparison = dunn_data[,1],
+                                  z_value = dunn_data[,2],
+                                  region = c("Soma", "Soma", "Soma"),
+                                  p_adjusted = dunn_data[,4])
+YellowSomaComparison
 ```
 
 
@@ -142,7 +168,22 @@ shapiro.test(x = aov_residuals)#tests for normality of data set
 bartlett.test(data = maturity_dat_yellow , Cell ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
 fligner.test(Cell ~genotype, data = maturity_dat_yellow)
 kruskal.test(Cell ~genotype, data = maturity_dat_yellow) #nonparametric rank sum test
-dunnTest(Cell ~genotype, data = maturity_dat_yellow, method ="bh")
+dunn_data <- dunnTest(Cell ~genotype, data = maturity_dat_yellow, method ="bh")
+dunn_data <- dunn_data$res
+YellowCellComparison <-data.frame(comparison = dunn_data[,1],
+                                  z_value = dunn_data[,2],
+                                  region = c("Cell", "Cell", "Cell"),
+                                  p_adjusted = dunn_data[,4])
+YellowCellComparison
+```
+
+```{r}
+stats_output_fig_2C <-rbind(RedNeuriteComparison, RedSomaComparison, RedCellComparison)
+stats_output_fig_2C
+stats_output_figure_2D <-rbind(YellowNeuriteComparison, YellowSomaComparison, YellowCellComparison)
+stats_output_figure_2D
+```
+
 ```
   
 
