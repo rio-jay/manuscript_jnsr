@@ -1,0 +1,60 @@
+id,Original file name,genotype,strain,n_neurons,neurite_red_entry,neurite_yellow_entry,soma_red_entry,soma_yellow_entry,notes,neurite_red,neurite_yellow,neurite_total,soma_red,soma_yellow,soma_total,cell_red,cell_yellow,cell_total
+10604,AMH91 animal 16.oir,unc-104,AMH91,1,0,0,4,1,,0,0,0,4,1,5,4,1,5
+16885,AMH91 animal 19.oir,unc-104,AMH91,1,0,0,5,2,,0,0,1,5,2,7,5,2,7
+16949,AMH91 animal 2.oir,unc-104,AMH91,1,0,1,8,1,,0,1,0,8,1,9,8,2,10
+19296,AMH91 animal 5.oir,unc-104,AMH91,1,2,0,4,1,,2,0,2,4,1,5,6,1,7
+24248,AMH91 animal 10.oir,unc-104,AMH91,1,0,0,5,0,,0,0,0,5,0,5,5,0,5
+25943,AMH91 animal 22.oir,unc-104,AMH91,1,1,0,7,0,,1,0,1,7,0,7,8,0,8
+29103,AMH91 animal 6.oir,unc-104,AMH91,2,0,0,22,3,,0,0,0,11,1.5,12.5,11,1.5,12.5
+30802,DCR5074 animal 102.oir,control,DCR5074,1,0,0,2,2,,0,0,1,2,2,4,2,2,4
+35556,AMH91 animal 1.oir,unc-104,AMH91,1,0,1,9,0,,0,1,0,9,0,9,9,1,10
+36002,AMH91 animal 20.oir,unc-104,AMH91,1,0,0,9,0,,0,0,0,9,0,9,9,0,9
+40964,AMH91 animal 23.oir,unc-104,AMH91,1,0,0,5,0,,0,0,0,5,0,5,5,0,5
+47948,DCR5074 animal 103.oir,control,DCR5074,2,0,0,11,3,,0,0,0,5.5,1.5,7,5.5,1.5,7
+48382,AMH91 animal 13_0001.oir,unc-104,AMH91,2,0,0,8,3,,0,0,0,4,1.5,5.5,4,1.5,5.5
+50122,AMH91 animal 34.oir,unc-104,AMH91,1,0,0,15,4,7 are in neurite projection,0,0,0,15,4,19,15,4,19
+50196,AMH91 animal 8.oir,unc-104,AMH91,2,0,0,15,6,,0,0,0.5,7.5,3,10.5,7.5,3,10.5
+52003,DCR5074 animal 105.oir,control,DCR5074,2,0,1,12,2,,0,0.5,0.5,6,1,7,6,1.5,7.5
+54520,AMH91 animal 12.oir,unc-104,AMH91,2,0,1,12,2,,0,0.5,0,6,1,7,6,1.5,7.5
+55137,AMH91 animal 28.oir,unc-104,AMH91,1,1,0,5,0,,1,0,1,5,0,5,6,0,6
+55629,DCR5074 animal 101.oir,control,DCR5074,2,0,0,5,0,,0,0,0,2.5,0,2.5,2.5,0,2.5
+59973,AMH91 animal 21.oir,unc-104,AMH91,1,1,0,10,1,,1,0,1,10,1,11,11,1,12
+62998,AMH91 animal 9.oir,unc-104,AMH91,1,0,0,8,2,,0,0,0,8,2,10,8,2,10
+63967,AMH91 animal 29.oir,unc-104,AMH91,1,1,0,14,0,,1,0,1,14,0,14,15,0,15
+73042,AMH91 animal 17.oir,unc-104,AMH91,1,1,0,10,0,,1,0,1,10,0,10,11,0,11
+74869,AMH91 animal 31.oir,unc-104,AMH91,1,1,0,7,0,,1,0,1,7,0,7,8,0,8
+77288,AMH91 animal 14.oir,unc-104,AMH91,1,0,0,7,2,,0,0,0,7,2,9,7,2,9
+77789,AMH91 animal 24.oir,unc-104,AMH91,1,0,0,6,0,,0,0,0,6,0,6,6,0,6
+78047,AMH91 animal 4.1.oir,unc-104,AMH91,2,2,0,9,2,,1,0,1,4.5,1,5.5,5.5,1,6.5
+80788,AMH91 animal 32.oir,unc-104,AMH91,1,0,0,8,6,,0,0,0,8,6,14,8,6,14
+84468,AMH91 animal 33.oir,unc-104,AMH91,1,0,0,15,1,,0,0,0.5,15,1,16,15,1,16
+86254,AMH91 animal 25 (mightneedtoseparate).oir,unc-104,AMH91,2,0,1,12,1,,0,0.5,0,6,0.5,6.5,6,1,7
+86352,DCR5074 animal 104.oir,control,DCR5074,1,0,0,7,0,,0,0,0,7,0,7,7,0,7
+92460,AMH91 animal 30.oir,unc-104,AMH91,2,1,0,20,0,,0.5,0,0.5,10,0,10,10.5,0,10.5
+93795,AMH91 animal 7.oir,unc-104,AMH91,2,0,0,7,2,,0,0,0,3.5,1,4.5,3.5,1,4.5
+98507,AMH91 animal 26.oir,unc-104,AMH91,1,0,0,12,0,,0,0,0,12,0,12,12,0,12
+120927,"DCR5074 20C, animal 50.oir",control,DCR5074,,,,,,,0,1,1,2,3,5,2,4,6
+124587,"DCR5074 20C, animal 48.oir",control,DCR5074,,,,,,,0,0,0,4,2,6,4,2,6
+166816,"DCR5074 20C, animal 51.oir",control,DCR5074,,,,,,,0,0,0,1,2,3,1,2,3
+182943,"DCR5074 20C, animal 6.oir",control,DCR5074,,,,,,,0,0,0,0,2,2,0,2,2
+224261,"DCR5074 20C, animal 40.oir",control,DCR5074,,,,,,,0,0,0,2,4,6,2,4,6
+225812,"DCR5074 20C, animal 54.oir",control,DCR5074,,,,,,,0,0,0,4,0.5,4.5,4,0.5,4.5
+282833,"DCR5074 20C, animal 36.oir",control,DCR5074,,,,,,,0,0,0,2.5,3,5.5,2.5,3,5.5
+286617,"DCR5074 20C, animal 37.oir",control,DCR5074,,,,,,,0,0,0,5,1.5,6.5,5,1.5,6.5
+313238,"DCR5074 20C, animal 1.oir",control,DCR5074,,,,,,,0,0,0,1,3.5,4.5,1,3.5,4.5
+325940,"DCR5074 20C, animal 52.oir",control,DCR5074,,,,,,,0,0,0,5,2,7,5,2,7
+403543,"DCR5074 20C, animal 27.oir",control,DCR5074,,,,,,,0,0,0,4,3,7,4,3,7
+419937,"DCR5074 20C, animal 43.oir",control,DCR5074,,,,,,,0,0,0,0,7,7,0,7,7
+528535,"DCR5074 20C, animal 33.oir",control,DCR5074,,,,,,,0,0,0,2.5,1.5,4,2.5,1.5,4
+548815,"DCR5074 20C, animal 53.oir",control,DCR5074,,,,,,,0,0,0,6,4,10,6,4,10
+629208,"DCR5074 20C, animal 49.oir",control,DCR5074,,,,,,,0,0,0,9,0.5,9.5,9,0.5,9.5
+662366,"DCR5074 20C, animal 26.oir",control,DCR5074,,,,,,,0,0,0,0,4,4,0,4,4
+692126,"DCR5074 20C, animal 39.oir",control,DCR5074,,,,,,,0,0,0,4,1,5,4,1,5
+842827,"DCR5074 20C, animal 4.oir",control,DCR5074,,,,,,,0,0,0,4,2,6,4,2,6
+258753,"DCR5074 20C, animal 38.oir",control,DCR5074,,,,,,,0.5,0,0.5,1.5,3,4.5,2,3,5
+708171,"DCR5074 20C, animal 2.oir",control,DCR5074,,,,,,,0.5,0,0.5,10.5,0,10.5,11,0,11
+770728,"DCR5074 20C, animal 34.oir",control,DCR5074,,,,,,,0.5,0,0.5,5.5,0.5,6,6,0.5,6.5
+346182,"DCR5074 20C, animal 28.oir",control,DCR5074,,,,,,,1,0,1,8,2,10,9,2,11
+595660,"DCR5074 20C, animal 44.oir",control,DCR5074,,,,,,,1,0,1,0.5,3,3.5,1.5,3,4.5
+680392,"DCR5074 20C, animal 42.oir",control,DCR5074,,,,,,,1,0,1,3,4,7,4,4,8
+799161,"DCR5074 20C, animal 41.oir",control,DCR5074,,,,,,,1,0,1,4.5,2,6.5,5.5,2,7.5
