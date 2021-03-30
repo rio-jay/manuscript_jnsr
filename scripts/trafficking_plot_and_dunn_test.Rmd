@@ -26,7 +26,7 @@ library(here)
 ```
 
 ```{r}
-dat <-read.csv(here("data.csv")) #reads in csv data file
+dat <-read.csv(here("datafolder","data.csv")) #reads in csv data file
 
 factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
 trafdat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed

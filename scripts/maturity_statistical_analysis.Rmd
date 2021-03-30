@@ -179,8 +179,10 @@ YellowCellComparison
 
 ```{r}
 stats_output_fig_2C <-rbind(RedNeuriteComparison, RedSomaComparison, RedCellComparison)
+write.csv(stats_output_fig_2C, file = "fig_2C_z_values.csv")
 stats_output_fig_2C
 stats_output_figure_2D <-rbind(YellowNeuriteComparison, YellowSomaComparison, YellowCellComparison)
+write.csv(stats_output_fig_2D, file = "fig_2D_z_values.csv")
 stats_output_figure_2D
 ```
 
