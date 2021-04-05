@@ -18,7 +18,7 @@ library(FSA)
 library(here)
 
 #reads in the dataframe
-dat <-read.csv(here("data.csv")) #reads in csv data file
+dat <-read.csv(here("datafolder", "data.csv")) #reads in csv data file
 
 factorNames <- c("control", "unc-33(mn407)", "unc-33(e204)") #defines the genotypes to be analyzed 
 maturity_dat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
@@ -45,14 +45,39 @@ maturity_dat_yellow <-maturity_dat_yellow %>%
          Cell = avg_cell_auto_count_yellow
     )
 
-
+#pivots the location data for the observations longer. Stores the data values under values column and the old column names under a new column named location.
+maturity_dat_red <-maturity_dat_red %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+maturity_dat_yellow <-maturity_dat_yellow %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+maturity_dat_red
 ```
 
+```{r}
+new_plot<- filter(maturity_dat_red,location=="Neurite")
+new_plot
+ggplot(data = new_plot, aes(x=genotype, y=value, fill=location))+
+  geom_boxplot(outlier.alpha = )
+install.packages("outliers")
+library(outliers)
+outlier.rm(new_plot,)
+```
 
 ```{r}
-#statistical tests
 #red neurite~genotype
-red_neurite_one_way <-lm(Neurite ~ genotype, data= maturity_dat_red)#creates a linear model of data to be analyzed 
+
+#outlier identification using boxplots
+neurite_outlier_detection<- filter(maturity_dat_red,location=="Neurite")
+ggplot(data = neurite_outlier_detection, aes(x=genotype, y=value, fill=location))+
+  geom_boxplot()
+
+#statistical tests
+
+red_neurite_one_way <-lm(Neurite ~ genotype, data= maturity_dat_red)#creates a linear model of data to be analyzed
 Anova(red_neurite_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
 plot(red_neurite_one_way) #creates plots to visually analyze data
 aov_residuals <- resid(red_neurite_one_way) #extracts residuals from linear model
@@ -66,6 +91,13 @@ dunnTest(Neurite ~genotype, data = maturity_dat_red, method ="bh")
 
 ```{r}
 #red soma~genotype
+
+#outlier identification using boxplots
+soma_outlier_detection<- filter(maturity_dat_red,location=="Soma")
+ggplot(data = soma_outlier_detection, aes(x=genotype, y=value, fill=location))+
+  geom_boxplot()
+
+#statistical tests
 red_soma_one_way <-lm(Soma ~ genotype, data= maturity_dat_red)#creates a linear model of data to be analyzed 
 Anova(red_soma_one_way,type="III") #performs a type III anova which accounts for unequal sample sizes
 plot(red_soma_one_way) #creates plots to visually analyze data
