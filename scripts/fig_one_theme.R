@@ -1,3 +1,4 @@
+library(ggtext)
 #jitter and theme elements to feed into ggplots
 fig_one_theme <- theme(axis.text.x = element_markdown(face = "italic", size = 13),
                        axis.title.x = element_blank(),

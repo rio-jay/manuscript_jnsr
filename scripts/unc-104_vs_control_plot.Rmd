@@ -11,9 +11,10 @@ library(ggplot2)
 library(here)
 library(tidyr)
 library(ggsignif)
+library(ggtext)
+library(Hmisc)
 #reads in the dataframe
 dat <-read.csv(here("datafolder", "unc-104_data.csv")) #reads in csv data file
-here()
 factorNames <- c("control", "unc-104(e1265)") #defines the genotypes to be analyzed 
 traf_dat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
 traf_dat$genotype <- factor(traf_dat$genotype, levels =c("control", "unc-104(e1265)"))

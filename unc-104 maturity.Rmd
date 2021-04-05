@@ -1,0 +1,117 @@
+---
+title: "unc-104_vs_control_plot"
+output: html_notebook
+---
+```{r}
+#libraries used in this notebook
+library(gmodels)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(tidyverse)
+library(ggpubr)
+library(here)
+#reads in the dataframe
+dat <-read.csv(here("datafolder", "unc-104_data.csv"))
+factorNames <- c("control","unc-104(e1265)") #defines the genotypes to be analyzed 
+mat_dat_104 <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+mat_dat_104$genotype <- factor(mat_dat_104$genotype, levels =c("control","unc-104(e1265)"))
+
+```
+
+```{r}
+#organization of the data
+#subset the columns that will be used in analysis and renames columns to more readable names
+mat_dat_104_red <- select(mat_dat_104,id, genotype, neurite_red, soma_red, cell_red)
+
+mat_dat_104_red
+mat_dat_104_red <- mat_dat_104_red %>% 
+  rename(Neurite = neurite_red,
+         Soma = soma_red,
+         Cell = cell_red
+    )
+mat_dat_104_red
+#now for the yellow data
+mat_dat_104_yellow <- select(mat_dat_104, id, genotype, neurite_yellow, soma_yellow, cell_yellow)
+mat_dat_104_yellow <-mat_dat_104_yellow %>% 
+  rename(Neurite = neurite_yellow,
+         Soma = soma_yellow,
+         Cell = cell_yellow
+    )
+#pivots the location data for the observations longer. Stores the data values under values column and the old column names under a new column named location.
+mat_dat_104_red <-mat_dat_104_red %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+mat_dat_104_yellow <-mat_dat_104_yellow %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+#reorders the location factors to aide in graphical representation of data
+mat_dat_104_red$location <- factor(mat_dat_104_red$location,
+                                    levels = c("Neurite", "Soma", "Cell"))
+
+mat_dat_104_yellow$location <- factor(mat_dat_104_yellow$location,
+                                    levels = c("Neurite", "Soma", "Cell"))
+
+```
+
+
+```{r}
+#position jitter function
+posn_j <- position_jitter(width=.2)
+#dot plot of the red data in the locations of the neuron faceted
+mat_104_plot_red <- ggplot(data=mat_dat_104_red, aes(x=genotype, y=value, fill=location)) +
+  geom_violin(aes(x=genotype, y=value, fill=location),
+              fill = "red",
+              alpha = .3,
+              draw_quantiles = c(.5))+
+  facet_wrap(vars(location))+ #facets the data to show the location in the cell of the red AG's
+  geom_point(alpha = 0.6,
+             position =posn_j)+ #creates a dotplot of the data
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
+  fig_one_theme+ #loads theme elements from other figures in the manuscript
+  coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
+  theme(legend.position = "none")+ #gets rid of legend
+  labs(y = "ALs per AIY Neuron")
+  #geom_signif(stat="identity"
+              #data = data.frame(x=c(.85,.85),
+                               # xend=c(2.15,3.15),
+                               # y=c(13,15),
+                                #annotation=c(""))
+              
+
+mat_104_plot_red
+
+#dot plot of the yellow data in the locations of the neuron faceted
+mat_104_plot_yellow <- ggplot(data=mat_dat_104_yellow, aes(x=genotype, y=value, fill=location)) +
+  geom_violin(aes(x=genotype, y=value, fill=location),
+              fill = "yellow",
+              alpha = .3,
+              draw_quantiles = c(.5))+
+  facet_wrap(vars(location))+ #facets the data to show the location in the cell of the red AG's
+  geom_point(alpha = 0.6,
+             position =posn_j)+ #creates a dotplot of the data
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
+  fig_one_theme+ #loads theme elements from other figures in the manuscript
+  coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
+  theme(legend.position = "none")+
+  labs(y = "AGs per AIY Neuron")
+
+
+mat_104_plot_yellow
+
+    
+```
+```{r}
+mat_104_plot_red
+mat_104_plot_yellow
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
