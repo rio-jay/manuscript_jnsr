@@ -1,0 +1,136 @@
+---
+title: "unc-104_maturity_statistical_analysis"
+output: html_notebook
+---
+```{r}
+library(gmodels)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(tidyverse)
+library(car)
+library(FSA)
+library(here)
+
+#reads in the dataframe
+dat <-read.csv(here("datafolder", "unc-104_data.csv")) #reads in csv data file
+
+factorNames <- c("control", "unc-104(e1265)") #defines the genotypes to be analyzed 
+dat$genotype <- factor(dat$genotype, levels =c("control", "unc-104(e1265)"))
+
+```
+
+```{r}
+#organization of the data
+#subset the columns that will be used in analysis and renames columns to more readable names
+mat_dat_104_red <- select(mat_dat_104,id, genotype, neurite_red, soma_red, cell_red)
+
+mat_dat_104_red
+mat_dat_104_red <- mat_dat_104_red %>% 
+  rename(Neurite = neurite_red,
+         Soma = soma_red,
+         Cell = cell_red
+    )
+mat_dat_104_red
+#now for the yellow data
+mat_dat_104_yellow <- select(mat_dat_104, id, genotype, neurite_yellow, soma_yellow, cell_yellow)
+mat_dat_104_yellow <-mat_dat_104_yellow %>% 
+  rename(Neurite = neurite_yellow,
+         Soma = soma_yellow,
+         Cell = cell_yellow
+    )
+
+```
+
+```{r}
+#Neurite - Red
+#independent t-test
+#checking t-test assumptions
+unc_104_one_way <-lm(Neurite ~ genotype, data= mat_dat_104_red)#creates a linear model of data to be analyzed 
+plot(unc_104_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(unc_104_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of residuals in data set. if significant, data are non-normal.  significant shapiro test -> use fligner  
+bartlett.test(data = mat_dat_104_red , Neurite ~ genotype )#test for homogeneity of variance (if p is significant variance is unequal  amoung groups), Bartlett test assumes normality.
+fligner.test(Neurite ~ genotype, data = mat_dat_104_red) # a nonparametric test for homogeneity of variance to be used when data are non-normal (this tests helps us tell variance, but is not strictly necessary, since the implied nonnormal distribution of data means non-parametric means are needed)
+#statistical tests are now ready to be run below
+t.test(Neurite ~ genotype, data=mat_dat_104_red, var.equal=TRUE) #if nonparametric, use the Mann-whitney (aka wilcox rank sum test)
+wilcox.test(Neurite ~ genotype, data=mat_dat_104_red, na.rm=FALSE, paired=FALSE, conf.int=TRUE)
+```
+
+
+```{r}
+#Soma - Red
+#independent t-test
+#checking t-test assumptions
+unc_104_one_way <-lm(Soma ~ genotype, data= mat_dat_104_red)#creates a linear model of data to be analyzed 
+plot(unc_104_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(unc_104_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of residuals in data set. if significant, data are non-normal.  significant shapiro test -> use fligner  
+bartlett.test(data = mat_dat_104_red , Soma ~ genotype )#test for homogeneity of variance (if p is significant variance is unequal  amoung groups), Bartlett test assumes normality.
+fligner.test(Soma ~ genotype, data = mat_dat_104_red) # a nonparametric test for homogeneity of variance to be used when data are non-normal (this tests helps us tell variance, but is not strictly necessary, since the implied nonnormal distribution of data means non-parametric means are needed)
+#statistical tests are now ready to be run below
+t.test(Soma ~ genotype, data=mat_dat_104_red, var.equal=TRUE) #if nonparametric, use the Mann-whitney (aka wilcox rank sum test)
+wilcox.test(Soma ~ genotype, data=mat_dat_104_red, na.rm=FALSE, paired=FALSE, conf.int=TRUE)
+```
+
+```{r}
+#Cell - Red
+#independent t-test
+#checking t-test assumptions
+unc_104_one_way <-lm(Cell ~ genotype, data= mat_dat_104_red)#creates a linear model of data to be analyzed 
+plot(unc_104_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(unc_104_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of residuals in data set. if significant, data are non-normal.  significant shapiro test -> use fligner  
+bartlett.test(data = mat_dat_104_red , Cell ~ genotype )#test for homogeneity of variance (if p is significant variance is unequal  amoung groups), Bartlett test assumes normality.
+fligner.test(Cell ~ genotype, data = mat_dat_104_red) # a nonparametric test for homogeneity of variance to be used when data are non-normal (this tests helps us tell variance, but is not strictly necessary, since the implied nonnormal distribution of data means non-parametric means are needed)
+#statistical tests are now ready to be run below
+t.test(Cell ~ genotype, data=mat_dat_104_red, var.equal=TRUE) #if nonparametric, use the Mann-whitney (aka wilcox rank sum test)
+wilcox.test(Cell ~ genotype, data=mat_dat_104_red, na.rm=FALSE, paired=FALSE, conf.int=TRUE)
+```
+
+```{r}
+#Neurite - Yellow
+#independent t-test
+#checking t-test assumptions
+unc_104_one_way <-lm(Neurite ~ genotype, data= mat_dat_104_yellow)#creates a linear model of data to be analyzed 
+plot(unc_104_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(unc_104_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of residuals in data set. if significant, data are non-normal.  significant shapiro test -> use fligner  
+bartlett.test(data = mat_dat_104_yellow , Neurite ~ genotype )#test for homogeneity of variance (if p is significant variance is unequal  amoung groups), Bartlett test assumes normality.
+fligner.test(Neurite ~ genotype, data = mat_dat_104_yellow) # a nonparametric test for homogeneity of variance to be used when data are non-normal (this tests helps us tell variance, but is not strictly necessary, since the implied nonnormal distribution of data means non-parametric means are needed)
+#statistical tests are now ready to be run below
+t.test(Neurite ~ genotype, data=mat_dat_104_yellow, var.equal=TRUE) #if nonparametric, use the Mann-whitney (aka wilcox rank sum test)
+wilcox.test(Neurite ~ genotype, data=mat_dat_104_yellow, na.rm=FALSE, paired=FALSE, conf.int=TRUE)
+```
+
+
+```{r}
+#Soma ~ Yellow
+#independent t-test
+#checking t-test assumptions
+unc_104_one_way <-lm(Soma ~ genotype, data= mat_dat_104_yellow)#creates a linear model of data to be analyzed 
+plot(unc_104_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(unc_104_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of residuals in data set. if significant, data are non-normal.  significant shapiro test -> use fligner  
+bartlett.test(data = mat_dat_104_yellow , Soma ~ genotype )#test for homogeneity of variance (if p is significant variance is unequal  amoung groups), Bartlett test assumes normality.
+fligner.test(Soma ~ genotype, data = mat_dat_104_yellow) # a nonparametric test for homogeneity of variance to be used when data are non-normal (this tests helps us tell variance, but is not strictly necessary, since the implied nonnormal distribution of data means non-parametric means are needed)
+#statistical tests are now ready to be run below
+t.test(Soma ~ genotype, data=mat_dat_104_yellow, var.equal=TRUE) #if nonparametric, use the Mann-whitney (aka wilcox rank sum test)
+wilcox.test(Soma ~ genotype, data=mat_dat_104_yellow, na.rm=FALSE, paired=FALSE, conf.int=TRUE)
+```
+
+```{r}
+#Cell - Yellow
+#independent t-test
+#checking t-test assumptions
+unc_104_one_way <-lm(Cell ~ genotype, data= mat_dat_104_yellow)#creates a linear model of data to be analyzed 
+plot(unc_104_one_way) #creates plots to visually analyze data
+aov_residuals <- resid(unc_104_one_way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of residuals in data set. if significant, data are non-normal.  significant shapiro test -> use fligner  
+bartlett.test(data = mat_dat_104_yellow , Cell ~ genotype )#test for homogeneity of variance (if p is significant variance is unequal  amoung groups), Bartlett test assumes normality.
+fligner.test(Cell ~ genotype, data = mat_dat_104_yellow) # a nonparametric test for homogeneity of variance to be used when data are non-normal (this tests helps us tell variance, but is not strictly necessary, since the implied nonnormal distribution of data means non-parametric means are needed)
+#statistical tests are now ready to be run below
+t.test(Cell ~ genotype, data=mat_dat_104_yellow, var.equal=TRUE) #if nonparametric, use the Mann-whitney (aka wilcox rank sum test)
+wilcox.test(Cell ~ genotype, data=mat_dat_104_yellow, na.rm=FALSE, paired=FALSE, conf.int=TRUE)
+```
+

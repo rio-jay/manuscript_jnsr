@@ -77,7 +77,7 @@ maturity_red_plot <- ggplot(data=maturity_dat_red, aes(x=genotype, y=value, fill
              position =posn_j)+ #creates a dotplot of the data
   stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
         geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
-  fig_one_theme+ #loads theme elements from other figures in the manuscript
+  fig_one_theme+ #loads theme elements from other figures in the manuscript. if you have trouble running this, look for "fig_one_them.R" in scipts folder and run that first
   coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
   theme(legend.position = "none")+ #gets rid of legend
   labs(y = "ALs per AIY Neuron")
