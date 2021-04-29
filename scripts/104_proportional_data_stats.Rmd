@@ -1,0 +1,79 @@
+---
+title: "Unc-104_proportional_data_stats"
+output: html_notebook
+---
+
+
+```{r}
+#libraries used in this notebook
+library(gmodels)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(tidyverse)
+library(ggpubr)
+library(here)
+#reads in the dataframe
+dat <-read.csv(here("datafolder", "unc-104_data.csv"))
+factorNames <- c("control","unc-104(e1265)") #defines the genotypes to be analyzed 
+mat_dat_104 <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+mat_dat_104$genotype <- factor(mat_dat_104$genotype, levels =c("control","unc-104(e1265)"))
+
+```
+
+```{r}
+#organization of the data
+#subset the columns that will be used in analysis and renames columns to more readable names
+mat_dat_104_red <- select(mat_dat_104,id, genotype, neurite_red, soma_red, cell_red)
+
+mat_dat_104_red
+mat_dat_104_red <- mat_dat_104_red %>% 
+  rename(Neurite = neurite_red,
+         Soma = soma_red,
+         Cell = cell_red
+    )
+mat_dat_104_red
+#now for the yellow data
+mat_dat_104_yellow <- select(mat_dat_104, id, genotype, neurite_yellow, soma_yellow, cell_yellow)
+mat_dat_104_yellow <-mat_dat_104_yellow %>% 
+  rename(Neurite = neurite_yellow,
+         Soma = soma_yellow,
+         Cell = cell_yellow
+    )
+
+```
+
+```{r}
+#the contigency table can now be created to analyze the data. However, first the data are going to be manually calculated so that they can be added to a matrix after. 
+red_soma_wt<- filter(mat_dat_104_red, genotype == "control" )
+yellow_soma_wt<- filter(mat_dat_104_yellow, genotype == "control" )
+red_soma_104<- filter(mat_dat_104_red, genotype == "unc-104(e1265)" ) 
+yellow_soma_104<- filter(mat_dat_104_yellow, genotype == "unc-104(e1265)" )
+
+red_wt_soma_sum <- sum(red_soma_wt$Soma)
+yellow_wt_soma_sum <- sum(yellow_soma_wt$Soma)
+red_104_soma_sum <- sum(red_soma_104$Soma)
+yellow_104_soma_sum <- sum(yellow_soma_104$Soma)
+#now that the sums are created, they can be added to a matrix to create a contingency table
+Chi_data_wt_vs_104 <- matrix(c(red_wt_soma_sum,yellow_wt_soma_sum,red_104_soma_sum,yellow_104_soma_sum), ncol = 2, byrow = TRUE)
+#adding the column and row names for readability
+colnames(Chi_data_wt_vs_104) <-c("Red", "Yellow")
+rownames(Chi_data_wt_vs_104) <-c("Control", "unc-104(e1265)")
+Chi_data_wt_vs_104 <-as.table(Chi_data_wt_vs_104)#this ill change class from a matrix to a table
+Chi_data_wt_vs_104
+#Finally, the data is labeled and compiled. Now a Chi-squared test can be run
+chi_test_output <-chisq.test(Chi_data_wt_vs_104)
+chi_test_output$expected
+chi_test_output$residuals
+
+prop_data <- prop.table(Chi_data_wt_vs_104, margin = 1)
+prop_data
+
+prop_data <- as.data.frame(prop_data)
+prop_data
+
+stacked_prop_plot <- ggplot(data =prop_data, aes (x=Var1, fill =Freq ))+
+  geom_bar(position = "fill")
+stacked_prop_plot
+```
+
