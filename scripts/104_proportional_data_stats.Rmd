@@ -72,8 +72,10 @@ prop_data
 prop_data <- as.data.frame(prop_data)
 prop_data
 
-stacked_prop_plot <- ggplot(data =prop_data, aes (x=Var1, fill =Freq ))+
-  geom_bar(position = "fill")
+stacked_prop_plot <- ggplot(data =prop_data, aes (x=Var1, y=Freq, fill =Var2 ))+
+  geom_col(position = "fill")+
+  scale_fill_manual(values = c("red", "yellow"))+
+  fig_one_theme
 stacked_prop_plot
 ```
 
