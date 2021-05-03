@@ -13,6 +13,7 @@ library(dplyr)
 library(tidyverse)
 library(ggpubr)
 library(here)
+library(ggtext)
 #reads in the dataframe
 dat <-read.csv(here("datafolder", "unc-104_data.csv"))
 factorNames <- c("control","unc-104(e1265)") #defines the genotypes to be analyzed 
@@ -57,25 +58,41 @@ yellow_104_soma_sum <- sum(yellow_soma_104$Soma)
 #now that the sums are created, they can be added to a matrix to create a contingency table
 Chi_data_wt_vs_104 <- matrix(c(red_wt_soma_sum,yellow_wt_soma_sum,red_104_soma_sum,yellow_104_soma_sum), ncol = 2, byrow = TRUE)
 #adding the column and row names for readability
-colnames(Chi_data_wt_vs_104) <-c("Red", "Yellow")
-rownames(Chi_data_wt_vs_104) <-c("Control", "unc-104(e1265)")
+colnames(Chi_data_wt_vs_104) <-c("mCherry", "mCherry/GFP")
+rownames(Chi_data_wt_vs_104) <-c("control", "unc-104(e1265)")
 Chi_data_wt_vs_104 <-as.table(Chi_data_wt_vs_104)#this ill change class from a matrix to a table
 Chi_data_wt_vs_104
 #Finally, the data is labeled and compiled. Now a Chi-squared test can be run
 chi_test_output <-chisq.test(Chi_data_wt_vs_104)
 chi_test_output$expected
 chi_test_output$residuals
+chi_test_output
 
 prop_data <- prop.table(Chi_data_wt_vs_104, margin = 1)
 prop_data
 
 prop_data <- as.data.frame(prop_data)
 prop_data
+#now the data can be plotted after the stats and data transformation
+
+#Here is figure theme for the graph that is about to be made
+fig_one_theme <- theme(axis.text.x = element_markdown(face = "italic", size = 13),
+                       axis.title.x = element_blank(),
+                       axis.ticks.x = element_blank(),
+                       panel.background = element_blank(),
+                       panel.grid.major.x = element_line(color = "snow3"),
+                       panel.grid = element_line(linetype = "solid", color = "snow3"),
+                       panel.border = element_rect(linetype = "solid", fill = NA),
+                       text = element_text(size = 24),)
 
 stacked_prop_plot <- ggplot(data =prop_data, aes (x=Var1, y=Freq, fill =Var2 ))+
   geom_col(position = "fill")+
-  scale_fill_manual(values = c("red", "yellow"))+
-  fig_one_theme
+  scale_fill_manual(values = c("red", "yellow"))+ #These are the labels for the fill colors
+  fig_one_theme+ #loading in some old theme elements from other graphs in the manuscript
+  theme(panel.grid.major.x = element_blank(),#here are where other themes could be added
+        legend.position="top")+ #puts the legen at the top to save some room
+  labs(y="Percent of puncta in the soma",#y axis title
+       fill = NULL)#manual legend title
 stacked_prop_plot
 ```
 
