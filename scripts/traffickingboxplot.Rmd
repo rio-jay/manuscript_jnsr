@@ -18,10 +18,11 @@ library(AICcmodavg)
 library(ggpubr)
 library(tidyverse)
 library(broom)
+library(here)
 ```
 
 ```{r}
-dat <-read.csv("data.csv", header = TRUE,  sep=",", stringsAsFactors = TRUE)
+dat <-read.csv(here("datafolder", "data.csv"))
 
 ```
 

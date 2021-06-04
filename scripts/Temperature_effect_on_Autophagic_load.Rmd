@@ -1,0 +1,62 @@
+---
+title: "Temperature_effect_on_Autophagic_load"
+output: html_notebook
+---
+
+```{r}
+library(ggplot2)
+#library(psych) #"Error in library(psych) : there is no package called ‘psych’"
+library(agricolae)
+library(car)
+library(AICcmodavg)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+library(here)
+
+#opens files for the separate temperature factors as well as one containing both and passes strings as factors
+dfboth <- read.csv(here("datafolder", "databoth.csv"))
+```
+
+
+
+
+```{r}
+dfboth <- select(dfboth,original_fn, genotype, avg_neurite_count_sum, avg_soma_count_sum, avg_cell_count_sum, temperature)
+
+dfboth
+dfboth <- dfboth %>% 
+  rename(Neurite = avg_neurite_count_sum,
+         Soma = avg_soma_count_sum,
+         Cell = avg_cell_count_sum
+    )
+dfboth
+
+```
+```{r}
+#position jitter function
+posn_j <- position_jitter(width=.2)
+#dot plot of the red data in the locations of the neuron faceted
+tempdiff <- ggplot(data=dfboth, aes(x=genotype, y=Cell, fill=temperature)) +
+  geom_violin(aes(x=genotype, y=Cell, fill=temperature),
+              fill = "red",
+              alpha = .3,
+              draw_quantiles = c(.5))+
+  facet_wrap(vars(temperature))+ #facets the data to show the location in the cell of the red AG's
+  geom_point(alpha = 0.6,
+             position =posn_j)+ #creates a dotplot of the data
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
+  fig_one_theme+ #loads theme elements from other figures in the manuscript. if you have trouble running this, look for "fig_one_them.R" in scipts folder and run that first
+  coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
+  theme(legend.position = "none")+ #gets rid of legend
+  labs(y = "AVs per AIY Neuron")
+  #geom_signif(stat="identity"
+              #data = data.frame(x=c(.85,.85),
+                               # xend=c(2.15,3.15),
+                               # y=c(13,15),
+                                #annotation=c(""))
+              
+tempdiff
+```
+

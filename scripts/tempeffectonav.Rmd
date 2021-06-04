@@ -9,7 +9,7 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 
 ```{r}
 library(ggplot2)
-library(psych)
+#library(psych) #"Error in library(psych) : there is no package called ‘psych’"
 library(agricolae)
 library(car)
 library(AICcmodavg)
