@@ -1,0 +1,191 @@
+---
+title: "AV and unc-33 cortical complex"
+output: html_notebook
+---
+```{r}
+#libraries used in this notebook
+library(gmodels)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(tidyverse)
+library(ggpubr)
+library(here)
+#reads in the dataframe
+dat <-read.csv(here("datafolder", "AV_AL_data_uncs.csv"))
+factorNames <- c("control","unc-33(mn407)", "unc-33(e204)", "unc-44(hrt-2)","unc-104(e1265)") #defines the genotypes to be analyzed 
+unc_AV_data <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+unc_AV_data$genotype <- factor(unc_AV_data$genotype, levels =c("control","unc-33(mn407)", "unc-33(e204)", "unc-44(hrt-2)","unc-104(e1265)"))
+```
+
+Trafficking plots below. So no maturity data, just AV
+
+```{r}
+#position jitter
+posn_j <- position_jitter(width=.2)
+#Neurite VIOLIN PLOT
+fig3_plot_A <- ggplot(data=unc_AV_data, aes(x=genotype, y=neurite_total)) +
+  geom_violin(draw_quantiles = c(.5), fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+  fig_one_theme+
+  coord_cartesian(ylim = c(0,20))+
+  labs(y = "AV's per AIY Neurite",
+       x = "Genotype")+
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
+              annotations = c("7.32e-05"))+
+  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
+              annotations = c("4.72e-06"),
+              y_position = 13)  
+
+fig3_plot_A
+
+
+#SOMA LINEPLOT
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+fig3_plot_B <- ggplot(data=unc_AV_data, aes(x=genotype, y=soma_total)) +
+  geom_violin(draw_quantiles = c(.5),fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+
+  coord_cartesian(ylim = c(0,20))+
+  fig_one_theme+
+  labs(y = "AV's per AIY Soma",
+       x = "Genotype")+
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
+              annotations = c("NS"))+
+  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
+              annotations = c("NS"),
+              y_position = 17)  
+  
+fig3_plot_B
+
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+fig3_plot_C <- ggplot(data=unc_AV_data, aes(x=genotype, y=soma_total)) +
+  geom_violin(draw_quantiles = c(.5), fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+
+  coord_cartesian(ylim = c(0,20))+
+  fig_one_theme+
+  labs(y = "AV's per AIY Cell",
+       x = "Genotype")+
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
+              annotations = c("1.72e-02"))+
+  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
+              annotations = c("9.92e-03	"),
+              y_position = 20)
+fig3_plot_C
+```
+
+
+```{r}
+fig3_plot_A
+fig3_plot_B
+fig3_plot_C
+```
+Now we want maturity data. But first we need to extricate the red and yellow values from the data set by pivoting and filtering
+
+```{r}
+#organization of the data
+#subset the columns that will be used in analysis and renames columns to more readable names
+mat_dat_uncs_red <- select(unc_AV_data,id, genotype, neurite_red, soma_red, cell_red)
+
+mat_dat_uncs_red
+mat_dat_uncs_red <- mat_dat_uncs_red %>% 
+  rename(Neurite = neurite_red,
+         Soma = soma_red,
+         Cell = cell_red
+    )
+mat_dat_uncs_red
+#now for the yellow data
+mat_dat_uncs_yellow <- select(unc_AV_data, id, genotype, neurite_yellow, soma_yellow, cell_yellow)
+mat_dat_uncs_yellow <-mat_dat_uncs_yellow %>% 
+  rename(Neurite = neurite_yellow,
+         Soma = soma_yellow,
+         Cell = cell_yellow
+    )
+#pivots the location data for the observations longer. Stores the data values under values column and the old column names under a new column named location.
+mat_dat_uncs_red <-mat_dat_uncs_red %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+mat_dat_uncs_yellow <-mat_dat_uncs_yellow %>%
+ pivot_longer(cols = c(Neurite, Soma, Cell),
+   names_to = "location",
+   values_to = "value")
+#reorders the location factors to aide in graphical representation of data
+mat_dat_uncs_red$location <- factor(mat_dat_uncs_red$location,
+                                    levels = c("Neurite", "Soma", "Cell"))
+
+mat_dat_uncs_yellow$location <- factor(mat_dat_uncs_yellow$location,
+                                    levels = c("Neurite", "Soma", "Cell"))
+
+
+```
+Now that our data are properly organized, can visualize the red and yellow AM and AL
+```{r}
+#position jitter function
+posn_j <- position_jitter(width=.2)
+
+#dot plot of the red data in the locations of the neuron faceted
+figure4_plot_red <- ggplot(data=mat_dat_uncs_red, aes(x=genotype, y=value, fill=location)) +
+  geom_violin(aes(x=genotype, y=value, fill=location),
+              fill = "red",
+              alpha = .3,
+              draw_quantiles = c(.5))+
+  facet_wrap(vars(location))+ #facets the data to show the location in the cell of the red AG's
+  geom_point(alpha = 0.6,
+             position =posn_j)+ #creates a dotplot of the data
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
+  fig_one_theme+ #loads theme elements from other figures in the manuscript
+  coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
+  theme(legend.position = "none")+ #gets rid of legend
+  labs(y = "ALs per AIY Neuron")
+  #geom_signif(stat="identity"
+              #data = data.frame(x=c(.85,.85),
+                               # xend=c(2.15,3.15),
+                               # y=c(13,15),
+                                #annotation=c(""))
+              
+
+figure4_plot_red
+
+#dot plot of the yellow data in the locations of the neuron faceted
+figure4_plot_yellow <- ggplot(data=mat_dat_uncs_yellow, aes(x=genotype, y=value, fill=location)) +
+  geom_violin(aes(x=genotype, y=value, fill=location),
+              fill = "yellow",
+              alpha = .3,
+              draw_quantiles = c(.5))+
+  facet_wrap(vars(location))+ #facets the data to show the location in the cell of the red AG's
+  geom_point(alpha = 0.6,
+             position =posn_j)+ #creates a dotplot of the data
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #creates an error bar based on one standard devation of the data
+  fig_one_theme+ #loads theme elements from other figures in the manuscript
+  coord_cartesian(ylim = c(0,18))+ #creates the limits of the graph
+  theme(legend.position = "none")+
+  labs(y = "AGs per AIY Neuron")
+
+
+figure4_plot_yellow
+```
+
+
+```{r}
+figure4_plot_red
+figure4_plot_yellow
+
+```
+
+
