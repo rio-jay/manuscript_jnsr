@@ -15,7 +15,10 @@ library(here)
 dat <-read.csv(here("datafolder", "AV_AL_data_uncs.csv"))
 factorNames <- c("control","unc-33(mn407)", "unc-33(e204)", "unc-44(hrt-2)","unc-104(e1265)") #defines the genotypes to be analyzed 
 unc_AV_data <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
-unc_AV_data$genotype <- factor(unc_AV_data$genotype, levels =c("control","unc-33(mn407)", "unc-33(e204)", "unc-44(hrt-2)","unc-104(e1265)"))
+unc_AV_data <- filter(unc_AV_data, temperature == 20) #filters out the 25 degree data
+unc_AV_data$genotype <- factor(unc_AV_data$genotype, levels =c("control","unc-33(mn407)", "unc-33(e204)", "unc-44(hrt-2)","unc-104(e1265)")) #reorders the genotypes so that they are organized in the proper way for visual presentation
+
+
 ```
 
 Trafficking plots below. So no maturity data, just AV
@@ -78,12 +81,7 @@ fig3_plot_C <- ggplot(data=unc_AV_data, aes(x=genotype, y=soma_total)) +
   coord_cartesian(ylim = c(0,20))+
   fig_one_theme+
   labs(y = "AV's per AIY Cell",
-       x = "Genotype")+
-  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
-              annotations = c("1.72e-02"))+
-  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
-              annotations = c("9.92e-03	"),
-              y_position = 20)
+       x = "Genotype")
 fig3_plot_C
 ```
 
@@ -186,6 +184,16 @@ figure4_plot_yellow
 figure4_plot_red
 figure4_plot_yellow
 
+```
+
+Below is a section regarding penetrance of neurite AV presence. This isn't here because it's necessarily good data methodology, but it's just to see if the unc-104 results are similar to what was seen in the unc-104 paper by Stavoe et al 2016. Because according to my methods so far, they are not so similar
+
+```{r}
+unc_AV_data <- filter(unc_AV_data, temperature == 20)
+neurite_penetrance_plot <-ggplot(data=unc_AV_data, aes(x=genotype))+
+  geom_bar()+
+  facet_wrap(vars(neurite_positive))
+neurite_penetrance_plot
 ```
 
 
