@@ -7,8 +7,8 @@ fig_one_theme <- theme(axis.text.x = element_markdown(face = "italic", size = 13
                        panel.grid.major.x = element_line(color = "snow3"),
                        panel.grid = element_line(linetype = "solid", color = "snow3"),
                        panel.border = element_rect(linetype = "solid", fill = NA),
-                       text = element_text(size = 24),
-) #this will need to be resized later, maybe like to 18 or so
+                       text = element_text(size = 24), 
+)
 
 #position jitter function
 posn_j <- position_jitter(width=.2)

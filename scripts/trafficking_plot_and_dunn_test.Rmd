@@ -23,6 +23,7 @@ library(rcompanion)
 library(Hmisc)
 library(ggtext)
 library(here)
+library(rcompanion)
 ```
 
 ```{r}
@@ -81,14 +82,14 @@ fig_1_plotA <- ggplot(data=trafdat, aes(x=genotype, y=avg_neurite_count_sum)) +
   geom_point(alpha = 0.6,
              position =posn_j,)+
   stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
-        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #sdev error bars
   fig_one_theme+
-  coord_cartesian(ylim = c(0,20))+
+  coord_cartesian(ylim = c(0,20))+ #limits the axis to theses coordinates
   labs(y = "AV's per AIY Neurite",
        x = "Genotype")+
-  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), 
+  geom_signif(comparisons = list(c('control','unc-33(mn407)' )), #creates the significance bars
               annotations = c("7.32e-05"))+
-  geom_signif(comparisons = list(c('control','unc-33(e204)' )), 
+  geom_signif(comparisons = list(c('control','unc-33(e204)' )), #creates the significance bars
               annotations = c("4.72e-06"),
               y_position = 13)  
 
