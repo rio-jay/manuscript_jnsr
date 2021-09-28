@@ -1,0 +1,148 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(gmodels)
+library(car)
+library(ggplot2)
+library(qqplotr)
+library(dplyr)
+library(psych)
+library(AICcmodavg)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+library(FSA)
+library(rcompanion)
+library(Hmisc)
+library(ggtext)
+library(here)
+library(rcompanion)
+```
+
+```{r}
+dat <-read.csv(here("datafolder","olaEx3013_rand_data.csv")) #reads in csv data file
+
+factorNames <- c("control", "unc-33(mn407)", "unc-44(hrt2)", 	
+"unc-119(ed3)") #defines the genotypes to be analyzed 
+trafdat <- filter(dat, genotype %in% factorNames) #filters only the factors (genotypes) to be analyzed
+trafdat$genotype <- factor(trafdat$genotype, levels =c("control", "unc-33(mn407)", "unc-44(hrt2)", 	
+"unc-119(ed3)"))
+
+```
+
+
+```{r}
+#statistical tests
+#axon analysis
+one.way <-lm(neurite_avg ~ genotype, data= trafdat)#creates a linear model of data to be analyzed 
+Anova(one.way,type="III") #performs a type III anova which accounts for unequal sample sizes
+plot(one.way) #creates plots to visually analyze data
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x = aov_residuals)#tests for normality of data set
+bartlett.test(data = trafdat, neurite_avg ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(neurite_avg ~genotype, data = trafdat)#nonparametric rank sum test
+dunnTest(neurite_avg ~genotype, data = trafdat, method ="bh")#posthoc test for multiple comparisons
+```
+
+
+```{r}
+#soma analysis
+one.way <-lm(soma_avg ~ genotype, data= trafdat) #creates a linear model of data to be analyzed 
+Anova(one.way,type="III") #performs a type III anova which accounts for unequal sample sizes 
+plot(one.way) #creates plots to visually analyze data 
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x=aov_residuals) #tests for normality of data set
+bartlett.test(data = trafdat, soma_avg ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(data = trafdat, soma_avg ~ genotype)#nonparametric rank sum test
+dunnTest(soma_avg ~genotype, data = trafdat, method ="bh") #posthoc test for multiple comparisons
+```
+
+
+```{r}
+#cell analysis
+one.way <-lm(cell_avg ~ genotype, data= trafdat) #creates a linear model of data to be analyzed 
+Anova(one.way,type="III")#performs a type III anova which accounts for unequal sample sizes 
+plot(one.way) #creates plots to visually analyze data 
+aov_residuals <- resid(one.way) #extracts residuals from linear model
+shapiro.test(x=aov_residuals) #tests for normality of data set
+bartlett.test(data = trafdat, cell_avg ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+kruskal.test(data = trafdat, cell_avg ~ genotype)#nonparametric rank sum test
+dunnTest(cell_avg ~genotype, data = trafdat, method ="bh")  #posthoc test for multiple comparisons
+```
+
+```{r}
+#Neurite VIOLIN PLOT
+fig_1_plotA <- ggplot(data=trafdat, aes(x=genotype, y=neurite_avg)) +
+  geom_violin(draw_quantiles = c(.5), fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) + #sdev error bars
+  fig_one_theme+
+  coord_cartesian(ylim = c(0,20))+ #limits the axis to theses coordinates
+  labs(y = "AV's per AIY Neurite",
+       x = "Genotype")
+
+fig_1_plotA
+
+
+```
+
+```{r}
+#SOMA LINEPLOT
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+fig_1_plotB <- ggplot(data=trafdat, aes(x=genotype, y=soma_avg)) +
+  geom_violin(draw_quantiles = c(.5),fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+
+  coord_cartesian(ylim = c(0,20))+
+  fig_one_theme+
+  labs(y = "AV's per AIY Soma",
+       x = "Genotype")
+fig_1_plotB
+```
+
+```{r}
+#position jitter
+posn_j <- position_jitter(width=.2)
+#jittery line plot
+fig_1_plotC <- ggplot(data=trafdat, aes(x=genotype, y=cell_avg)) +
+  geom_violin(draw_quantiles = c(.5), fill = "snow2")+
+  geom_point(alpha = 0.6,
+             position =posn_j,)+stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", alpha = .8,  width=0.2, size = .8) +
+
+  coord_cartesian(ylim = c(0,20))+
+  fig_one_theme+
+  labs(y = "AV's per AIY Cell",
+       x = "Genotype")
+fig_1_plotC
+```
+
+```{r}
+fig_1_plotA
+fig_1_plotB
+fig_1_plotC
+```
+
+
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
