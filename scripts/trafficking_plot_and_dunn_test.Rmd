@@ -44,7 +44,7 @@ Anova(one.way,type="III") #performs a type III anova which accounts for unequal 
 plot(one.way) #creates plots to visually analyze data
 aov_residuals <- resid(one.way) #extracts residuals from linear model
 shapiro.test(x = aov_residuals)#tests for normality of data set
-bartlett.test(data = trafdat, avg_neurite_count_sum ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+bartlett.test(data = trafdat, avg_neurite_count_sum ~ genotype )#test for homogeneity of variance 
 kruskal.test(avg_neurite_count_sum ~genotype, data = trafdat)#nonparametric rank sum test
 dunnTest(avg_neurite_count_sum ~genotype, data = trafdat, method ="bh")#posthoc test for multiple comparisons
 ```
@@ -57,7 +57,7 @@ Anova(one.way,type="III") #performs a type III anova which accounts for unequal 
 plot(one.way) #creates plots to visually analyze data 
 aov_residuals <- resid(one.way) #extracts residuals from linear model
 shapiro.test(x=aov_residuals) #tests for normality of data set
-bartlett.test(data = trafdat, avg_soma_count_sum ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+bartlett.test(data = trafdat, avg_soma_count_sum ~ genotype ) #test for homogeneity of variance 
 kruskal.test(data = trafdat, avg_soma_count_sum ~ genotype)#nonparametric rank sum test
 dunnTest(avg_soma_count_sum ~genotype, data = trafdat, method ="bh") #posthoc test for multiple comparisons
 ```
@@ -70,7 +70,7 @@ Anova(one.way,type="III")#performs a type III anova which accounts for unequal s
 plot(one.way) #creates plots to visually analyze data 
 aov_residuals <- resid(one.way) #extracts residuals from linear model
 shapiro.test(x=aov_residuals) #tests for normality of data set
-bartlett.test(data = trafdat, avg_cell_count_sum ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+bartlett.test(data = trafdat, avg_cell_count_sum ~ genotype ) #test for homogeneity of variance
 kruskal.test(data = trafdat, avg_cell_count_sum ~ genotype)#nonparametric rank sum test
 dunnTest(avg_cell_count_sum ~genotype, data = trafdat, method ="bh")  #posthoc test for multiple comparisons
 ```

@@ -46,7 +46,7 @@ Anova(one.way,type="III") #performs a type III anova which accounts for unequal 
 plot(one.way) #creates plots to visually analyze data
 aov_residuals <- resid(one.way) #extracts residuals from linear model
 shapiro.test(x = aov_residuals)#tests for normality of data set
-bartlett.test(data = trafdat, neurite_avg ~ genotype )#test for homogeneity of variance (which is needed for kruskal wallis)
+bartlett.test(data = trafdat, neurite_avg ~ genotype )#test for homogeneity of variance 
 kruskal.test(neurite_avg ~genotype, data = trafdat)#nonparametric rank sum test
 dunnTest(neurite_avg ~genotype, data = trafdat, method ="bh")#posthoc test for multiple comparisons
 ```
@@ -59,7 +59,7 @@ Anova(one.way,type="III") #performs a type III anova which accounts for unequal 
 plot(one.way) #creates plots to visually analyze data 
 aov_residuals <- resid(one.way) #extracts residuals from linear model
 shapiro.test(x=aov_residuals) #tests for normality of data set
-bartlett.test(data = trafdat, soma_avg ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+bartlett.test(data = trafdat, soma_avg ~ genotype ) #test for homogeneity of variance 
 kruskal.test(data = trafdat, soma_avg ~ genotype)#nonparametric rank sum test
 dunnTest(soma_avg ~genotype, data = trafdat, method ="bh") #posthoc test for multiple comparisons
 ```
@@ -72,7 +72,7 @@ Anova(one.way,type="III")#performs a type III anova which accounts for unequal s
 plot(one.way) #creates plots to visually analyze data 
 aov_residuals <- resid(one.way) #extracts residuals from linear model
 shapiro.test(x=aov_residuals) #tests for normality of data set
-bartlett.test(data = trafdat, cell_avg ~ genotype ) #test for homogeneity of variance (which is needed for kruskal wallis)
+bartlett.test(data = trafdat, cell_avg ~ genotype ) #test for homogeneity of variance
 kruskal.test(data = trafdat, cell_avg ~ genotype)#nonparametric rank sum test
 dunnTest(cell_avg ~genotype, data = trafdat, method ="bh")  #posthoc test for multiple comparisons
 ```
